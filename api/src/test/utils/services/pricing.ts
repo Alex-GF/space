@@ -1,6 +1,6 @@
-import fs from 'fs';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs';
+import { writeFile, mkdir } from 'node:fs/promises';
+import path from 'node:path';
 import { faker } from '@faker-js/faker';
 import { v4 as uuidv4 } from 'uuid';
 import yaml from 'js-yaml';

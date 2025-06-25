@@ -1,6 +1,6 @@
-import fs from 'fs';
-import https from 'https';
-import path from 'path';
+import fs from 'node:fs';
+import https from 'node:https';
+import path from 'node:path';
 import fetch from 'node-fetch';
 import { Pricing, retrievePricingFromYaml } from 'pricing4ts';
 import { retrievePricingFromPath } from 'pricing4ts/server';

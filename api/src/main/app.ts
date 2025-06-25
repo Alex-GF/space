@@ -1,7 +1,7 @@
+import type { Server } from "node:http";
+import type { AddressInfo } from "node:net";
 import * as dotenv from "dotenv";
 import express, {Application} from "express";
-import type { Server } from "http";
-import type { AddressInfo } from "net";
 
 import container from "./config/container.js";
 import { disconnectMongoose, initMongoose } from "./config/mongoose.js";

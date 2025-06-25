@@ -1,4 +1,4 @@
-import type { Server } from 'http';
+import type { Server } from 'node:http';
 import request from 'supertest';
 
 import { createTestUser, deleteTestUser } from './users/userTestUtils.js';

@@ -1,5 +1,5 @@
+import type { Server } from 'node:http';
 import { Server as SocketIOServer } from 'socket.io';
-import { Server } from 'http';
 
 /**
  * Servicio encargado de gestionar eventos en tiempo real usando WebSockets.

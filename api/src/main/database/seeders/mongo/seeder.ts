@@ -1,6 +1,7 @@
+import path from 'node:path';
 import { Seeder } from 'mongo-seeding';
-import path from 'path';
 import { fileURLToPath } from 'url';
+
 import { getMongoDBConnectionURI } from '../../../config/mongoose.js';
 
 const __filename = fileURLToPath(import.meta.url);

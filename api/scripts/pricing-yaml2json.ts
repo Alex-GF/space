@@ -1,5 +1,5 @@
-import * as fs from "fs";
-import * as path from "path";
+import fs from "node:fs";
+import path from "node:path";
 import { retrievePricingFromPath } from "pricing4ts/server";
 
 import { parsePricingToSpacePricingObject } from "../src/main/utils/pricing-yaml2json";
