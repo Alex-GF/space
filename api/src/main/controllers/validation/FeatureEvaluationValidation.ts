@@ -1,4 +1,4 @@
-import { body, check } from 'express-validator';
+import { body } from 'express-validator';
 
 const expectedConsumptionSingleFeature = [
   body()

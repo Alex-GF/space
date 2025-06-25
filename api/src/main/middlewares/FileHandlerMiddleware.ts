@@ -1,4 +1,4 @@
-import { NextFunction, RequestHandler } from 'express';
+import type { NextFunction, RequestHandler } from 'express';
 import fs from 'fs';
 import multer from 'multer';
 import {v4 as uuidv4} from 'uuid';

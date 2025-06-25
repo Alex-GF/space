@@ -1,6 +1,6 @@
 import express from 'express';
 
-import CacheController from '../controllers/CacheController';
+import CacheController from '../controllers/CacheController.js';
 
 
 const loadFileRoutes = function (app: express.Application) {

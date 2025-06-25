@@ -1,4 +1,4 @@
-import UserMongoose from '../../../repositories/mongoose/models/UserMongoose';
+import UserMongoose from '../../../repositories/mongoose/models/UserMongoose.js';
 
 /**
  * Creates a default admin user if it does not exist

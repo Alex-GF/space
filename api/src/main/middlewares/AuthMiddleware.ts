@@ -1,6 +1,7 @@
-import { NextFunction } from 'express';
-import container from '../config/container';
-import { RestOperation, Role, ROLE_PERMISSIONS, USER_ROLES } from '../types/models/User';
+import type { NextFunction } from 'express';
+
+import container from '../config/container.js';
+import { RestOperation, Role, ROLE_PERMISSIONS, USER_ROLES } from '../types/models/User.js';
 
 // Middleware to verify API Key
 const authenticateApiKey = async (req: any, res: any, next: NextFunction) => {

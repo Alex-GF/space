@@ -1,13 +1,14 @@
-import request from 'supertest';
-import { baseUrl, getApp, shutdownApp } from './utils/testApp';
 import { Server } from 'http';
+import request from 'supertest';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+
+import { baseUrl, getApp, shutdownApp } from './utils/testApp.js';
 import {
   createTestUser,
   deleteTestUser,
-} from './utils/users/userTestUtils';
-import { LeanAnalytics } from '../main/types/models/Analytics';
-import { createTestAnalytics } from './utils/analytics/analyticsTestUtils';
+} from './utils/users/userTestUtils.js';
+import type { LeanAnalytics } from '../main/types/models/Analytics.js';
+import { createTestAnalytics } from './utils/analytics/analyticsTestUtils.js';
 
 describe('Analytics API Test Suite', function () {
   let app: Server;

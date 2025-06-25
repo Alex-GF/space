@@ -1,21 +1,22 @@
-import container from '../config/container';
-import {
+import { addDays, isAfter } from 'date-fns';
+
+import container from '../config/container.js';
+import type {
   ContractToCreate,
   LeanContract,
   UsageLevel,
   UsageLevelsResetQuery,
   UserContact,
-} from '../types/models/Contract';
-import ContractRepository from '../repositories/mongoose/ContractRepository';
-import { validateContractQueryFilters } from './validation/ContractServiceValidation';
-import ServiceService from './ServiceService';
-import { LeanPricing } from '../types/models/Pricing';
-import { addDays, isAfter } from 'date-fns';
-import { isSubscriptionValid } from '../controllers/validation/ContractValidation';
-import { performNovation } from '../utils/contracts/novation';
-import CacheService from './CacheService';
-import { addPeriodToDate, convertKeysToLowercase, escapeVersion, resetEscapeVersion } from '../utils/helpers';
-import { generateUsageLevels, resetEscapeContractedServiceVersions } from '../utils/contracts/helpers';
+} from '../types/models/Contract.js';
+import ContractRepository from '../repositories/mongoose/ContractRepository.js';
+import { validateContractQueryFilters } from './validation/ContractServiceValidation.js';
+import ServiceService from './ServiceService.js';
+import { LeanPricing } from '../types/models/Pricing.js';
+import { isSubscriptionValid } from '../controllers/validation/ContractValidation.js';
+import { performNovation } from '../utils/contracts/novation.js';
+import CacheService from './CacheService.js';
+import { addPeriodToDate, convertKeysToLowercase, escapeVersion, resetEscapeVersion } from '../utils/helpers.js';
+import { generateUsageLevels, resetEscapeContractedServiceVersions } from '../utils/contracts/helpers.js';
 
 class ContractService {
   private readonly contractRepository: ContractRepository;

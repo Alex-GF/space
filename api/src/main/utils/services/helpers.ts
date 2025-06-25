@@ -1,6 +1,6 @@
-import { LeanPricing } from '../../types/models/Pricing';
-import { LeanService } from '../../types/models/Service';
-import { resetEscapeVersion } from '../helpers';
+import type { LeanPricing } from '../../types/models/Pricing.js';
+import type { LeanService } from '../../types/models/Service.js';
+import { resetEscapeVersion } from '../helpers.js';
 
 function resetEscapeVersionInService(service: LeanService): void {
   for (const version in service.activePricings) {

@@ -1,4 +1,4 @@
-import { ContractHistoryEntry, UsageLevel } from '../../../main/types/models/Contract';
+import type { ContractHistoryEntry, UsageLevel } from '../../../main/types/models/Contract.js';
 
 export interface TestContract {
   userContact: {

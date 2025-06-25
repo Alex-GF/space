@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction, Router } from 'express';
-import { authenticateApiKey, hasPermission } from './AuthMiddleware';
+import type { Request, Response, NextFunction } from 'express';
+
+import { authenticateApiKey, hasPermission } from './AuthMiddleware.js';
 
 // Public routes that won't require authentication
 const PUBLIC_ROUTES = [

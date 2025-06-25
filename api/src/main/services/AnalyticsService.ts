@@ -1,8 +1,8 @@
 import { startOfToday, format, subDays } from 'date-fns';
 
-import container from '../config/container';
-import AnalyticsRepository from '../repositories/mongoose/AnalyticsRepository';
-import CacheService from './CacheService';
+import container from '../config/container.js';
+import AnalyticsRepository from '../repositories/mongoose/AnalyticsRepository.js';
+import CacheService from './CacheService.js';
 
 class AnalyticsService {
   private readonly analyticsRepository: AnalyticsRepository;

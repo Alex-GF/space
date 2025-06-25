@@ -1,4 +1,4 @@
-import { ContractQueryFilters } from "../../types/models/Contract";
+import type { ContractQueryFilters } from "../../types/models/Contract.js";
 
 export function validateContractQueryFilters(contractQueryFilters: ContractQueryFilters): string[]{
   const errors: string[] = [];

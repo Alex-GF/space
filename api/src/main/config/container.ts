@@ -4,19 +4,19 @@ import process from "node:process";
 import { asClass, asValue, AwilixContainer,createContainer } from "awilix";
 import dotenv from "dotenv";
 
-import MongooseServiceRepository from "../repositories/mongoose/ServiceRepository";
-import MongooseUserRepository from "../repositories/mongoose/UserRepository";
-import MongoosePricingRepository from "../repositories/mongoose/PricingRepository";
-import MongooseContractRepository from "../repositories/mongoose/ContractRepository";
-import MongooseAnalyticsRepository from "../repositories/mongoose/AnalyticsRepository";
+import MongooseServiceRepository from "../repositories/mongoose/ServiceRepository.js";
+import MongooseUserRepository from "../repositories/mongoose/UserRepository.js";
+import MongoosePricingRepository from "../repositories/mongoose/PricingRepository.js";
+import MongooseContractRepository from "../repositories/mongoose/ContractRepository.js";
+import MongooseAnalyticsRepository from "../repositories/mongoose/AnalyticsRepository.js";
 
-import CacheService from "../services/CacheService";
-import ServiceService from "../services/ServiceService";
-import UserService from "../services/UserService";
-import ContractService from "../services/ContractService";
-import FeatureEvaluationService from "../services/FeatureEvaluationService";
-import EventService from "../services/EventService";
-import AnalyticsService from "../services/AnalyticsService";
+import CacheService from "../services/CacheService.js";
+import ServiceService from "../services/ServiceService.js";
+import UserService from "../services/UserService.js";
+import ContractService from "../services/ContractService.js";
+import FeatureEvaluationService from "../services/FeatureEvaluationService.js";
+import EventService from "../services/EventService.js";
+import AnalyticsService from "../services/AnalyticsService.js";
 
 dotenv.config();
 

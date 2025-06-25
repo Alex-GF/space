@@ -1,17 +1,18 @@
+import fs from 'fs';
 import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
 import { faker } from '@faker-js/faker';
-import {
+import { v4 as uuidv4 } from 'uuid';
+import yaml from 'js-yaml';
+
+import type {
   TestFeature,
   TestUsageLimit,
   TestPlan,
   TestAddOn,
   TestPricing,
-} from '../../types/models/Pricing';
-import yaml from 'js-yaml';
-import { v4 as uuidv4 } from 'uuid';
-import path from 'path';
-import fs from 'fs';
-import { biasedRandomInt } from '../random';
+} from '../../types/models/Pricing.js';
+import { biasedRandomInt } from '../random.js';
 
 export async function generatePricingFile(serviceName?: string, version?: string): Promise<string> {
   let pricing: TestPricing & { saasName?: string; syntaxVersion?: string } =

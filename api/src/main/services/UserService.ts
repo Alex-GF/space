@@ -1,7 +1,7 @@
-import container from '../config/container';
-import UserRepository from '../repositories/mongoose/UserRepository';
-import { LeanUser, Role, USER_ROLES } from '../types/models/User';
-import { hashPassword } from '../utils/users/helpers';
+import container from '../config/container.js';
+import UserRepository from '../repositories/mongoose/UserRepository.js';
+import { LeanUser, Role, USER_ROLES } from '../types/models/User.js';
+import { hashPassword } from '../utils/users/helpers.js';
 
 class UserService {
   private userRepository: UserRepository;

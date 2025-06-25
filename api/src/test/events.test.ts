@@ -1,11 +1,12 @@
-import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import type { Server } from 'http';
 import { io, Socket } from 'socket.io-client';
-import request from 'supertest';
-import { baseUrl, getApp, shutdownApp } from './utils/testApp';
-import { Server } from 'http';
-import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth';
-import { getRandomPricingFile } from './utils/services/service';
 import { v4 as uuidv4 } from 'uuid';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import request from 'supertest';
+
+import { baseUrl, getApp, shutdownApp } from './utils/testApp.js';
+import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth.js';
+import { getRandomPricingFile } from './utils/services/service.js';
 
 describe('Events API Test Suite', function () {
   let app: Server;

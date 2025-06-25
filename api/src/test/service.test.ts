@@ -1,25 +1,26 @@
+import type { Server } from 'http';
 import request from 'supertest';
-import { baseUrl, getApp, shutdownApp } from './utils/testApp';
-import { Server } from 'http';
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
+import { retrievePricingFromPath } from 'pricing4ts/server';
+
+import { baseUrl, getApp, shutdownApp } from './utils/testApp.js';
 import {
   archivePricingFromService,
   createRandomService,
   deletePricingFromService,
   getRandomPricingFile,
   getService,
-} from './utils/services/service';
-import { zoomPricingPath } from './utils/services/ServiceTestData';
-import { retrievePricingFromPath } from 'pricing4ts/server';
-import { ExpectedPricingType } from '../main/types/models/Pricing';
-import { TestContract } from './types/models/Contract';
+} from './utils/services/service.js';
+import { zoomPricingPath } from './utils/services/ServiceTestData.js';
+import type { ExpectedPricingType } from '../main/types/models/Pricing.js';
+import type { TestContract } from './types/models/Contract.js';
 import {
   createRandomContract,
   createRandomContractsForService,
-} from './utils/contracts/contracts';
-import { isSubscriptionValid } from '../main/controllers/validation/ContractValidation';
-import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth';
-import { generatePricingFile } from './utils/services/pricing';
+} from './utils/contracts/contracts.js';
+import { isSubscriptionValid } from '../main/controllers/validation/ContractValidation.js';
+import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth.js';
+import { generatePricingFile } from './utils/services/pricing.js';
 
 describe('Services API Test Suite', function () {
   let app: Server;

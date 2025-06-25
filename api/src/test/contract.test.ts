@@ -1,20 +1,21 @@
-import request from 'supertest';
-import { baseUrl, getApp, shutdownApp } from './utils/testApp';
 import { Server } from 'http';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import request from 'supertest';
+import { addDays } from 'date-fns';
+
+import { baseUrl, getApp, shutdownApp } from './utils/testApp.js';
 import {
   createRandomContract,
   createRandomContracts,
   getAllContracts,
   getContractByUserId,
   incrementAllUsageLevel,
-} from './utils/contracts/contracts';
-import { generateContractAndService, generateNovation } from './utils/contracts/generators';
-import { addDays } from 'date-fns';
-import { UsageLevel } from '../main/types/models/Contract';
-import { TestContract } from './types/models/Contract';
-import { testUserId } from './utils/contracts/ContractTestData';
-import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth';
+} from './utils/contracts/contracts.js';
+import { generateContractAndService, generateNovation } from './utils/contracts/generators.js';
+import type { UsageLevel } from '../main/types/models/Contract.js';
+import type { TestContract } from './types/models/Contract.js';
+import { testUserId } from './utils/contracts/ContractTestData.js';
+import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth.js';
 
 describe('Contract API Test Suite', function () {
   let app: Server;

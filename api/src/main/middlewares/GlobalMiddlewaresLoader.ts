@@ -1,8 +1,9 @@
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import { apiKeyAuthMiddleware } from './ApiKeyAuthMiddleware';
-import { analyticsTrackerMiddleware } from './AnalyticsMiddleware';
+
+import { apiKeyAuthMiddleware } from './ApiKeyAuthMiddleware.js';
+import { analyticsTrackerMiddleware } from './AnalyticsMiddleware.js';
 
 const loadGlobalMiddlewares = (app: express.Application) => {
   app.use(express.json());

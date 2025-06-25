@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import container from '../config/container';
+
+import container from '../config/container.js';
 
 export const analyticsTrackerMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const baseUrl = process.env.BASE_URL_PATH || '/api/v1';

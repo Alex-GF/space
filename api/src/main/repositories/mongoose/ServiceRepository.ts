@@ -1,9 +1,9 @@
-import RepositoryBase from '../RepositoryBase';
-import PricingMongoose from './models/PricingMongoose';
-import ServiceMongoose from './models/ServiceMongoose';
-import { LeanService } from '../../types/models/Service';
-import { toPlainObject } from '../../utils/mongoose';
-import { LeanPricing } from '../../types/models/Pricing';
+import RepositoryBase from '../RepositoryBase.js';
+import PricingMongoose from './models/PricingMongoose.js';
+import ServiceMongoose from './models/ServiceMongoose.js';
+import type { LeanService } from '../../types/models/Service.js';
+import { toPlainObject } from '../../utils/mongoose.js';
+import type { LeanPricing } from '../../types/models/Pricing.js';
 
 export type ServiceQueryFilters = {
   name?: string;

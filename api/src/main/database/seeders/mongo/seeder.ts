@@ -1,9 +1,7 @@
 import { Seeder } from 'mongo-seeding';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { getMongoDBConnectionURI } from '../../../config/mongoose';
-import { seedDefaultAdmin } from '../common/userSeeder';
-import mongoose from 'mongoose';
+import { getMongoDBConnectionURI } from '../../../config/mongoose.js';
 
 const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);

@@ -1,13 +1,14 @@
+import type { Server } from 'http';
 import request from 'supertest';
-import { baseUrl, getApp, shutdownApp } from './utils/testApp';
-import { Server } from 'http';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
+
+import { baseUrl, getApp, shutdownApp } from './utils/testApp.js';
 import {
   createTestUser,
   deleteTestUser,
-} from './utils/users/userTestUtils';
-import { USER_ROLES } from '../main/types/models/User';
-import { createRandomContract } from './utils/contracts/contracts';
+} from './utils/users/userTestUtils.js';
+import { USER_ROLES } from '../main/types/models/User.js';
+import { createRandomContract } from './utils/contracts/contracts.js';
 
 describe('User API Test Suite', function () {
   let app: Server;

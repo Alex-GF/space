@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
-import EventController from '../controllers/EventController';
+
+import EventController from '../controllers/EventController.js';
 
 const loadFileRoutes = (app: express.Application) => {
   const eventController = new EventController();

@@ -1,5 +1,5 @@
 import express from 'express';
-import AnalyticsController from '../controllers/AnalyticsController';
+import AnalyticsController from '../controllers/AnalyticsController.js';
 
 const loadFileRoutes = function (app: express.Application) {
   const analyticsController = new AnalyticsController();

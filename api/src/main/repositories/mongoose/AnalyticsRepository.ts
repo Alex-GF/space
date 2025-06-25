@@ -1,7 +1,7 @@
-import { LeanAnalytics } from '../../types/models/Analytics';
-import { toPlainObject } from '../../utils/mongoose';
-import RepositoryBase from '../RepositoryBase';
-import AnalyticsDayMongoose from './models/AnalyticsDayMongoose';
+import type { LeanAnalytics } from '../../types/models/Analytics.js';
+import { toPlainObject } from '../../utils/mongoose.js';
+import RepositoryBase from '../RepositoryBase.js';
+import AnalyticsDayMongoose from './models/AnalyticsDayMongoose.js';
 
 class AnalyticsRepository extends RepositoryBase {
 

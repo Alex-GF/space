@@ -1,8 +1,9 @@
 import { body, check } from 'express-validator';
-import { LeanPricing } from '../../types/models/Pricing';
-import { Subscription } from '../../types/models/Contract';
-import ServiceService from '../../services/ServiceService';
-import container from '../../config/container';
+
+import type { LeanPricing } from '../../types/models/Pricing.js';
+import type { Subscription } from '../../types/models/Contract.js';
+import ServiceService from '../../services/ServiceService.js';
+import container from '../../config/container.js';
 
 const create = [
   // userContact (required)

@@ -1,12 +1,13 @@
 import fs from 'fs';
 import request from 'supertest';
-import { baseUrl, getApp, useApp } from '../testApp';
-import { clockifyPricingPath, githubPricingPath, zoomPricingPath } from './ServiceTestData';
-import { generatePricingFile } from './pricing';
 import { v4 as uuidv4 } from 'uuid';
-import { TestService } from '../../types/models/Service';
-import { TestPricing } from '../../types/models/Pricing';
-import { getTestAdminApiKey } from '../auth';
+
+import { baseUrl, getApp, useApp } from '../testApp.js';
+import { clockifyPricingPath, githubPricingPath, zoomPricingPath } from './ServiceTestData.js';
+import { generatePricingFile } from './pricing.js';
+import type { TestService } from '../../types/models/Service.js';
+import type { TestPricing } from '../../types/models/Pricing.js';
+import { getTestAdminApiKey } from '../auth.js';
 
 function getRandomPricingFile(name?: string) {
   return generatePricingFile(name);

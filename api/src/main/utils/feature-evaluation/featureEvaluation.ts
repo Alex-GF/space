@@ -1,13 +1,13 @@
-import container from '../../config/container';
-import ContractService from '../../services/ContractService';
-import {
+import container from '../../config/container.js';
+import ContractService from '../../services/ContractService.js';
+import type {
   DetailedFeatureEvaluation,
   EvaluationContext,
   FeatureEvaluationResult,
   PricingContext,
   SimpleFeatureEvaluation,
   SubscriptionContext,
-} from '../../types/models/FeatureEvaluation';
+} from '../../types/models/FeatureEvaluation.js';
 
 async function evaluateAllFeatures(
   pricingContext: PricingContext,

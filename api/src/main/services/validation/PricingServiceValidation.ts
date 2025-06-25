@@ -1,4 +1,4 @@
-import { ExpectedPricingType } from "../../types/models/Pricing";
+import type { ExpectedPricingType } from "../../types/models/Pricing.js";
 
 function validatePricingData(pricingData: ExpectedPricingType): string[] {
   const errors: string[] = [];

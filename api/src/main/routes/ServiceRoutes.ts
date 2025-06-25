@@ -1,10 +1,10 @@
 import express from 'express';
 
-import ServiceController from '../controllers/ServiceController';
-import * as ServiceValidator from '../controllers/validation/ServiceValidation';
-import * as PricingValidator from '../controllers/validation/PricingValidation';
-import { handlePricingUpload } from '../middlewares/FileHandlerMiddleware';
-import { handleValidation } from '../middlewares/ValidationHandlingMiddleware';
+import ServiceController from '../controllers/ServiceController.js';
+import * as ServiceValidator from '../controllers/validation/ServiceValidation.js';
+import * as PricingValidator from '../controllers/validation/PricingValidation.js';
+import { handlePricingUpload } from '../middlewares/FileHandlerMiddleware.js';
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js';
 
 const loadFileRoutes = function (app: express.Application) {
   const serviceController = new ServiceController();

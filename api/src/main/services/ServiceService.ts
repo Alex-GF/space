@@ -1,39 +1,36 @@
-import { retrievePricingFromPath } from 'pricing4ts/server';
-import container from '../config/container';
-import ServiceRepository, { ServiceQueryFilters } from '../repositories/mongoose/ServiceRepository';
-import { parsePricingToSpacePricingObject } from '../utils/pricing-yaml2json';
-import { Pricing, retrievePricingFromYaml } from 'pricing4ts';
-import fetch from 'node-fetch';
+import fs from 'fs';
 import https from 'https';
 import path from 'path';
-import fs from 'fs';
-import PricingRepository from '../repositories/mongoose/PricingRepository';
-import { validatePricingData } from './validation/PricingServiceValidation';
-import { LeanService } from '../types/models/Service';
-import { ExpectedPricingType, LeanPricing } from '../types/models/Pricing';
-import { FallBackSubscription, LeanContract } from '../types/models/Contract';
-import ContractRepository from '../repositories/mongoose/ContractRepository';
-import { performNovation } from '../utils/contracts/novation';
-import { isSubscriptionValidInPricing } from '../controllers/validation/ContractValidation';
-import { generateUsageLevels } from '../utils/contracts/helpers';
-import mongoose from 'mongoose';
-import { escapeVersion } from '../utils/helpers';
-import { resetEscapeVersionInService } from '../utils/services/helpers';
-// import CacheService from "./CacheService";
+import fetch from 'node-fetch';
+import { Pricing, retrievePricingFromYaml } from 'pricing4ts';
+import { retrievePricingFromPath } from 'pricing4ts/server';
+
+import container from '../config/container.js';
+import ServiceRepository, { ServiceQueryFilters } from '../repositories/mongoose/ServiceRepository.js';
+import { parsePricingToSpacePricingObject } from '../utils/pricing-yaml2json.js';
+import PricingRepository from '../repositories/mongoose/PricingRepository.js';
+import { validatePricingData } from './validation/PricingServiceValidation.js';
+import { LeanService } from '../types/models/Service.js';
+import type { ExpectedPricingType, LeanPricing } from '../types/models/Pricing.js';
+import type { FallBackSubscription, LeanContract } from '../types/models/Contract.js';
+import ContractRepository from '../repositories/mongoose/ContractRepository.js';
+import { performNovation } from '../utils/contracts/novation.js';
+import { isSubscriptionValidInPricing } from '../controllers/validation/ContractValidation.js';
+import { generateUsageLevels } from '../utils/contracts/helpers.js';
+import { escapeVersion } from '../utils/helpers.js';
+import { resetEscapeVersionInService } from '../utils/services/helpers.js';
 
 class ServiceService {
   private readonly serviceRepository: ServiceRepository;
   private readonly pricingRepository: PricingRepository;
   private readonly contractRepository: ContractRepository;
   private readonly eventService;
-  // private cacheService: CacheService;
 
   constructor() {
     this.serviceRepository = container.resolve('serviceRepository');
     this.pricingRepository = container.resolve('pricingRepository');
     this.contractRepository = container.resolve('contractRepository');
     this.eventService = container.resolve('eventService');
-    // this.cacheService = container.resolve('cacheService');
   }
 
   async index(queryParams: ServiceQueryFilters) {

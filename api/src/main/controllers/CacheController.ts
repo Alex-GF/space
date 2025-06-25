@@ -1,5 +1,5 @@
-import container from '../config/container';
-import CacheService from '../services/CacheService';
+import container from '../config/container.js';
+import CacheService from '../services/CacheService.js';
 
 class CacheController {
   private cacheService: CacheService;

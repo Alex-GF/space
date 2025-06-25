@@ -3,13 +3,13 @@ import express, {Application} from "express";
 import type { Server } from "http";
 import type { AddressInfo } from "net";
 
-import container from "./config/container";
-import { disconnectMongoose, initMongoose } from "./config/mongoose";
-import { initRedis } from "./config/redis";
-import { seedDatabase } from "./database/seeders/mongo/seeder";
-import loadGlobalMiddlewares from "./middlewares/GlobalMiddlewaresLoader";
-import routes from "./routes/index";
-import { seedDefaultAdmin } from "./database/seeders/common/userSeeder";
+import container from "./config/container.js";
+import { disconnectMongoose, initMongoose } from "./config/mongoose.js";
+import { initRedis } from "./config/redis.js";
+import { seedDatabase } from "./database/seeders/mongo/seeder.js";
+import loadGlobalMiddlewares from "./middlewares/GlobalMiddlewaresLoader.js";
+import routes from "./routes/index.js";
+import { seedDefaultAdmin } from "./database/seeders/common/userSeeder.js";
 
 const green = "\x1b[32m";
 const blue = "\x1b[36m";

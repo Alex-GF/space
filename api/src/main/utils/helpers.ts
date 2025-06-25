@@ -1,5 +1,6 @@
 import { addDays, addHours, addMinutes, addMonths, addSeconds, addYears } from 'date-fns';
-import { LeanPeriod } from '../types/models/Pricing';
+
+import type { LeanPeriod } from '../types/models/Pricing.js';
 
 /**
  * Converts all keys in an object to lowercase.

@@ -1,6 +1,6 @@
-import { UsageLevel } from '../../types/models/Contract';
-import { LeanPricing } from '../../types/models/Pricing';
-import { addPeriodToDate, escapeVersion, resetEscapeVersion } from '../helpers';
+import type { UsageLevel } from '../../types/models/Contract.js';
+import type { LeanPricing } from '../../types/models/Pricing.js';
+import { addPeriodToDate, escapeVersion, resetEscapeVersion } from '../helpers.js';
 
 function generateUsageLevels(pricing: LeanPricing): Record<string, UsageLevel> | undefined {
   const serviceUsageLevels: Record<string, UsageLevel> = {};

@@ -1,7 +1,7 @@
-import { createTestUser, deleteTestUser } from './users/userTestUtils';
-import { Server } from 'http';
+import type { Server } from 'http';
 import request from 'supertest';
-import { baseUrl } from './testApp';
+
+import { createTestUser, deleteTestUser } from './users/userTestUtils.js';
 
 // Admin user for testing
 let testAdminUser: any = null;

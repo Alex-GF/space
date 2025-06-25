@@ -1,4 +1,4 @@
-import { NextFunction } from "express";
+import type { NextFunction } from "express";
 
 const checkEntityExists = (entityService: any, idPathParamName: string) => async (req: any, res: any, next: NextFunction) => {
   try {

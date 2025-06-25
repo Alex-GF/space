@@ -1,15 +1,16 @@
+import type { Server } from 'http';
 import request from 'supertest';
-import { baseUrl, getApp, shutdownApp } from './utils/testApp';
-import { Server } from 'http';
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest';
-import { LeanFeature } from '../main/types/models/FeatureEvaluation';
-import { LeanService } from '../main/types/models/Service';
 import { v4 as uuidv4 } from 'uuid';
 import { addMonths, subDays, subMilliseconds } from 'date-fns';
 import { jwtVerify } from 'jose';
-import { encryptJWTSecret } from '../main/utils/jwt';
-import { LeanContract } from '../main/types/models/Contract';
-import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth';
+
+import { baseUrl, getApp, shutdownApp } from './utils/testApp.js';
+import type { LeanFeature } from '../main/types/models/FeatureEvaluation.js';
+import type { LeanService } from '../main/types/models/Service.js';
+import { encryptJWTSecret } from '../main/utils/jwt.js';
+import type { LeanContract } from '../main/types/models/Contract.js';
+import { cleanupAuthResources, getTestAdminApiKey, getTestAdminUser } from './utils/auth.js';
 
 function isActivePricing(pricingVersion: string, service: LeanService): boolean {
   return Object.keys(service.activePricings).some(

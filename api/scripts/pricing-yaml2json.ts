@@ -1,9 +1,9 @@
-import { AddOn, Feature, Plan, UsageLimit } from "pricing4ts";
-import { retrievePricingFromPath } from "pricing4ts/server";
-import { parsePricingToSpacePricingObject } from "../src/main/utils/pricing-yaml2json";
 import * as fs from "fs";
 import * as path from "path";
-import { ExpectedPricingType } from "../src/main/types/models/Pricing";
+import { retrievePricingFromPath } from "pricing4ts/server";
+
+import { parsePricingToSpacePricingObject } from "../src/main/utils/pricing-yaml2json";
+import type { ExpectedPricingType } from "../src/main/types/models/Pricing";
 
 const pricing = retrievePricingFromPath("./public/test-pricings/zoom/2024.yml");
 

@@ -1,4 +1,4 @@
-import { seedDatabase } from "../../main/database/seeders/mongo/seeder";
+import { seedDatabase } from "../../main/database/seeders/mongo/seeder.js";
 
 async function resetDatabase(){
   switch (process.env.DATABASE_TECHNOLOGY) {
