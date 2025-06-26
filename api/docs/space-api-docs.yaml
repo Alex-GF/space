@@ -346,15 +346,7 @@ paths:
             type: integer
             minimum: 1
             default: 1
-        - name: offset
-          in: query
-          description: |-
-            Number of items to skip before starting to collect the result set.
-            Cannot be used with `page`. Use either `page` or `offset`, not both.
-          required: false
-          schema:
-            type: integer
-            minimum: 0
+        - $ref: '#/components/parameters/Offset'
         - name: limit
           in: query
           description: >-
@@ -875,15 +867,7 @@ paths:
             type: integer
             minimum: 1
             default: 1
-        - name: offset
-          in: query
-          description: |-
-            Number of items to skip before starting to collect the result set.
-            Cannot be used with `page`. Use either `page` or `offset`, not both.
-          required: false
-          schema:
-            type: integer
-            minimum: 0
+        - $ref: '#/components/parameters/Offset'
         - name: limit
           in: query
           description: >-
@@ -1285,15 +1269,7 @@ paths:
             type: integer
             minimum: 1
             default: 1
-        - name: offset
-          in: query
-          description: |-
-            Number of items to skip before starting to collect the result set.
-            Cannot be used with `page`. Use either `page` or `offset`, not both.
-          required: false
-          schema:
-            type: integer
-            minimum: 0
+        - $ref: '#/components/parameters/Offset'
         - name: limit
           in: query
           description: >-
@@ -3068,3 +3044,13 @@ components:
       schema:
         type: string
         example: 680542cf34781df198b9a1aa
+    Offset:
+      name: offset
+      in: query
+      description: |-
+        Number of items to skip before starting to collect the result set.
+        Cannot be used with `page`. Use either `page` or `offset`, not both.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
