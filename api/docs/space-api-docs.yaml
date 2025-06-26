@@ -103,13 +103,7 @@ paths:
               example:
                 error: Invalid credentials
         '422':
-          description: Request sent could not be processed properly
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/FieldValidationError'
+          $ref: '#/components/responses/UnprocessableEntity'
   /users:
     get:
       summary: Get all users
@@ -162,7 +156,7 @@ paths:
         '404':
           description: User already exists or not found
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -221,7 +215,7 @@ paths:
         '403':
           description: Insufficient permissions
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         '404':
           description: User not found
         default:
@@ -320,6 +314,8 @@ paths:
           description: Insufficient permissions
         '404':
           description: User not found
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -447,9 +443,7 @@ paths:
             File format not allowed. Please provide the pricing in .yaml or .yml
             formats
         '422':
-          description: >-
-            Errors were found in your pricing specification. Please, fix it and
-            submit again
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -548,7 +542,7 @@ paths:
         '404':
           description: Service not found
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -677,9 +671,7 @@ paths:
             File format not allowed. Please provide the pricing in .yaml or .yml
             formats
         '422':
-          description: >-
-            Validation error. Maybe the pricing `saasName` does not match with
-            the service's
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -823,6 +815,8 @@ paths:
           description: Forbidden
         '404':
           description: Service or pricing not found
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -971,6 +965,8 @@ paths:
           description: Authentication required
         '403':
           description: Forbidden
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -1060,7 +1056,7 @@ paths:
         '404':
           description: Contract not found
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -1168,7 +1164,7 @@ paths:
         '404':
           description: Contract not found
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -1204,7 +1200,7 @@ paths:
         '404':
           description: Contract not found
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -1240,7 +1236,7 @@ paths:
         '404':
           description: Contract not found
         '422':
-          description: Validation error
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -1567,6 +1563,8 @@ paths:
           description: Forbidden
         '404':
           description: Contract not found
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -3030,6 +3028,18 @@ components:
                 example: 365
                 default: 30
       required: true
+  responses:
+    UnprocessableEntity:
+      description: Request sent could not be processed properly
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldValidationError'
   securitySchemes:
     ApiKeyAuth:
       type: apiKey
