@@ -88,8 +88,7 @@ paths:
                     type: string
                     example: jdoe
                   apiKey:
-                    type: string
-                    example: 0051e657dd30bc3a07583c20dcadc627211624ae8bf39acf05f08a3fdf2b434c
+                    $ref: '#/components/schemas/ApiKey'
                   role:
                     type: string
                     enum: 
@@ -99,6 +98,20 @@ paths:
                     example: ADMIN
         '401':
           description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid credentials
+        '422':
+          description: Request sent could not be processed properly
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FieldValidationError'
   /users:
     get:
       summary: Get all users
@@ -159,20 +172,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /users/{username}:
+    parameters:
+      - $ref: '#/components/parameters/Username'
     get:
       summary: Get user by username
       tags:
         - users
       security:
         - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: username
-          required: true
-          schema:
-            type: string
-            description: Username of the user
-            example: jDoe
       responses:
         '200':
           description: Operation Completed
@@ -198,14 +205,6 @@ paths:
         - users
       security:
         - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: username
-          required: true
-          schema:
-            type: string
-            description: Username of the user
-            example: jDoe
       requestBody:
         required: true
         content:
@@ -239,14 +238,6 @@ paths:
         - users
       security:
         - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: username
-          required: true
-          schema:
-            type: string
-            description: Username of the user
-            example: jDoe
       responses:
         '204':
           description: User deleted
@@ -270,13 +261,7 @@ paths:
       security:
         - ApiKeyAuth: []
       parameters:
-        - in: path
-          name: username
-          required: true
-          schema:
-            type: string
-            description: Username of the user
-            example: jDoe
+        - $ref: '#/components/parameters/Username'
       responses:
         '200':
           description: API Key regenerated
@@ -286,7 +271,7 @@ paths:
                 type: object
                 properties:
                   apiKey:
-                    type: string
+                    $ref: '#/components/schemas/ApiKey'
         '401':
           description: Authentication required
         '403':
@@ -307,13 +292,7 @@ paths:
       security:
         - ApiKeyAuth: []
       parameters:
-        - in: path
-          name: username
-          required: true
-          schema:
-            type: string
-            description: Username of the user
-            example: jDoe
+        - $ref: '#/components/parameters/Username'
       requestBody:
         required: true
         content:
@@ -504,6 +483,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /services/{serviceName}:
+    parameters:
+    - $ref: '#/components/parameters/ServiceName'
     get:
       tags:
         - services
@@ -512,14 +493,6 @@ paths:
       summary: Retrieves a service from the configuration
       description: Retrieves a service's information from the configuration by name
       operationId: getServiceByName
-      parameters:
-        - name: serviceName
-          in: path
-          description: Name of service to return
-          required: true
-          schema:
-            type: string
-            example: Zoom
       responses:
         '200':
           description: Successful operation
@@ -552,14 +525,6 @@ paths:
         **DISCLAIMER**: this endpoint cannot be used to change the pricing of a
         service.
       operationId: updateServiceByName
-      parameters:
-        - name: serviceName
-          in: path
-          description: Name of service to update
-          required: true
-          schema:
-            type: string
-            example: Zoom
       requestBody:
         description: Update a service managed by Pricing4SaaS
         content:
@@ -607,14 +572,6 @@ paths:
 
         **WARNING:** This operation disables the service, but do not remove it from the database, so that pricing information can be accessed with support purposes.
       operationId: deleteServiceByName
-      parameters:
-        - name: serviceName
-          in: path
-          description: Name of service to delete
-          required: true
-          schema:
-            type: string
-            example: Zoom
       responses:
         '204':
           description: Service deleted
@@ -631,6 +588,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /services/{serviceName}/pricings:
+    parameters:
+    - $ref: '#/components/parameters/ServiceName'
     get:
       tags:
         - services
@@ -642,13 +601,6 @@ paths:
         configuration
       operationId: getServicePricingsByName
       parameters:
-        - name: serviceName
-          in: path
-          description: Name of service whose pricings are going to be returned
-          required: true
-          schema:
-            type: string
-            example: Zoom
         - name: pricingStatus
           in: query
           description: Pricing status to be considered for filter
@@ -693,14 +645,6 @@ paths:
         **IMPORTANT:** both the service's name and the pricing's must be the
         same.
       operationId: addPricingToServiceByName
-      parameters:
-        - name: serviceName
-          in: path
-          description: Name of service to which the new pricing will be attached
-          required: true
-          schema:
-            type: string
-            example: Zoom
       requestBody:
         description: Adds a pricing to an existent service
         content:
@@ -745,6 +689,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /services/{serviceName}/pricings/{pricingVersion}:
+    parameters:
+    - $ref: '#/components/parameters/ServiceName'
+    - $ref: '#/components/parameters/PricingVersion'
     get:
       tags:
         - services
@@ -753,21 +700,6 @@ paths:
       summary: Retrieves a pricing from the configuration
       description: Retrieves a pricing configuration
       operationId: getServicePricingByVersion
-      parameters:
-        - name: serviceName
-          in: path
-          description: Name of service whose pricings are going to be returned
-          required: true
-          schema:
-            type: string
-            example: Zoom
-        - name: pricingVersion
-          in: path
-          description: Pricing version that is going to be returned
-          required: true
-          schema:
-            type: string
-            example: 1.0.0
       responses:
         '200':
           description: Successful operation
@@ -802,20 +734,6 @@ paths:
         novations to the most recent version of the pricing.
       operationId: updatePricingAvailabilityByVersion
       parameters:
-        - name: serviceName
-          in: path
-          description: Name of service to update
-          required: true
-          schema:
-            type: string
-            example: Zoom
-        - name: pricingVersion
-          in: path
-          description: Pricing version that is going to be updated
-          required: true
-          schema:
-            type: string
-            example: 1.0.0
         - name: availability
           in: query
           description: >-
@@ -898,21 +816,6 @@ paths:
         service. If the removed pricing is the **last active pricing of the
         service, the service will be deleted**.
       operationId: deletePricingByVersionAndService
-      parameters:
-        - name: serviceName
-          in: path
-          description: Name of service to delete
-          required: true
-          schema:
-            type: string
-            example: Zoom
-        - name: pricingVersion
-          in: path
-          description: Pricing version that is going to be deleted
-          required: true
-          schema:
-            type: string
-            example: 1.0.0
       responses:
         '204':
           description: Pricing deleted
@@ -1101,6 +1004,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
   /contracts/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserId'
     get:
       tags:
         - contracts
@@ -1109,14 +1014,6 @@ paths:
       summary: Retrieves a contract from the configuration
       description: Retrieves the contract of the given userId
       operationId: getContractByUserId
-      parameters:
-        - name: userId
-          in: path
-          description: The id of the user for locating the contract
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
       responses:
         '200':
           description: Successful operation
@@ -1147,14 +1044,6 @@ paths:
         allows you to change the active plan/add-ons within the contract,
         storing the actual values in the `history`.
       operationId: updateContractByUserId
-      parameters:
-        - name: userId
-          in: path
-          description: The id of the user for locating the contract
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
       requestBody:
         $ref: '#/components/requestBodies/SubscriptionCompositionNovation'
       responses:
@@ -1191,14 +1080,6 @@ paths:
 
         **WARNING:** This operation also removes all user history.
       operationId: deleteContractByUserId
-      parameters:
-        - name: userId
-          in: path
-          description: The id of the user for locating the contract
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
       responses:
         '204':
           description: Contract deleted
@@ -1247,13 +1128,7 @@ paths:
                   maxPets: 2
                   maxVisits: 5
       parameters:
-        - name: userId
-          in: path
-          description: The id of the user for locating the contract
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
+        - $ref: '#/components/parameters/UserId'
         - name: reset
           in: query
           description: >-
@@ -1314,13 +1189,7 @@ paths:
         `userContact` of a user's contract.
       operationId: updateContractUserContactByUserId
       parameters:
-        - name: userId
-          in: path
-          description: The id of the user for locating the contract
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
+        - $ref: '#/components/parameters/UserId'
       requestBody:
         $ref: '#/components/requestBodies/SubscriptionUserContactNovation'
       responses:
@@ -1356,13 +1225,7 @@ paths:
         `billingPeriod` of a user's contract.
       operationId: updateContractBillingPeriodByUserId
       parameters:
-        - name: userId
-          in: path
-          description: The id of the user for locating the contract
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
+        - $ref: '#/components/parameters/UserId'
       requestBody:
         $ref: '#/components/requestBodies/SubscriptionBillingNovation'
       responses:
@@ -1514,15 +1377,7 @@ paths:
         **IMPORTANT:** This operation does not update the usage levels of the user’s subscription. Therefore, it should not be used to authorize server-side operations that may modify those levels. If you choose to use it anyway for this purpose, make sure to manually update the corresponding usage limits—although this is not the recommended approach.
       operationId: evaluateAllFeaturesByUserId
       parameters:
-        - name: userId
-          in: path
-          description: >-
-            The id of the user for locating the contract that will be used to
-            perform the evaluation
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
+        - $ref: '#/components/parameters/UserId'
         - name: details
           in: query
           description: >-
@@ -1581,15 +1436,7 @@ paths:
         **IMPORTANT:** This operation does not update the usage levels of the user’s subscription. Therefore, it should not be used to authorize server-side operations that may modify those levels. If you choose to use it anyway for this purpose, make sure to manually update the corresponding usage limits—although this is not the recommended approach.
       operationId: evaluateAllFeaturesByUserIdAndGeneratePricingToken
       parameters:
-        - name: userId
-          in: path
-          description: >-
-            The id of the user for locating the contract that will be used to
-            perform the evaluation
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
+        - $ref: '#/components/parameters/UserId'
         - name: server
           in: query
           description: >-
@@ -1637,15 +1484,7 @@ paths:
         featureId regarding the contract of the user identified with userId
       operationId: evaluateFeatureByIdAndUserId
       parameters:
-        - name: userId
-          in: path
-          description: >-
-            The id of the user for locating the contract that will be used to
-            perform the evaluation
-          required: true
-          schema:
-            type: string
-            example: 680542cf34781df198b9a1aa
+        - $ref: '#/components/parameters/UserId'
         - name: featureId
           in: path
           description: The id of the feature that is going to be evaluated
@@ -1846,9 +1685,7 @@ components:
           description: Username of the user
           example: jDoe
         apiKey:
-          type: string
-          description: API Key of the user
-          example: j0hnD03
+          $ref: '#/components/schemas/ApiKey'
         role:
           type: string
           description: Role of the user
@@ -1904,9 +1741,8 @@ components:
       type: object
       properties:
         id:
-          type: string
           description: Identifier of the service within MongoDB
-          example: 68050bd09890322c57842f6f
+          $ref: '#/components/schemas/ObjectId'
         name:
           type: string
           description: The name of the service
@@ -1919,8 +1755,7 @@ components:
             type: object
             properties:
               id:
-                type: string
-                example: 682395ccb4cdf5b14afed1cd
+                $ref: '#/components/schemas/ObjectId'
               url:
                 type: string
                 format: path
@@ -1933,8 +1768,7 @@ components:
             type: object
             properties:
               id:
-                type: string
-                example: 682395ccb4cdf5b14afed1cd
+                $ref: '#/components/schemas/ObjectId'
               url:
                 type: string
                 format: path
@@ -3027,6 +2861,40 @@ components:
           type: string
       required:
         - error
+    FieldValidationError:
+      type: object
+      properties:
+        type:
+          type: string
+          example: field
+        msg:
+          type: string
+          example: Password must be a string
+        path:
+          type: string
+          example: password
+        location:
+          type: string
+          example: body
+        value:
+          example: 1
+      required:
+        - type
+        - msg
+        - path
+        - location
+    ApiKey:
+      type: string
+      description: Random 32 byte string encoded in hexadecimal
+      example: 0051e657dd30bc3a07583c20dcadc627211624ae8bf39acf05f08a3fdf2b434c
+      pattern: '^[a-f0-9]{64}$'
+      readOnly: true
+    ObjectId:
+      type: string
+      description: ObjectId of the corresponding MongoDB document
+      example: 68050bd09890322c57842f6f
+      pattern: '^[a-f0-9]{24}$'
+      readOnly: true
   requestBodies:
     SubscriptionCompositionNovation:
       description: >-
@@ -3168,3 +3036,36 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+  parameters:
+    Username:
+      name: username
+      in: path
+      required: true
+      schema:
+        type: string
+        description: Username of the user
+        example: johndoe
+    ServiceName:
+      name: serviceName
+      in: path
+      description: Name of service to return
+      required: true
+      schema:
+        type: string
+        example: Zoom
+    PricingVersion:
+      name: pricingVersion
+      in: path
+      description: Pricing version that is going to be updated
+      required: true
+      schema:
+        type: string
+        example: 1.0.0
+    UserId:
+      name: userId
+      in: path
+      description: The id of the user for locating the contract
+      required: true
+      schema:
+        type: string
+        example: 680542cf34781df198b9a1aa
