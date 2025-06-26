@@ -70,9 +70,7 @@ paths:
                   description: Username of the user
                   example: jdoe
                 password:
-                  type: string
-                  description: Password of the user
-                  example: j0hnD03
+                  $ref: '#/components/schemas/Password'
               required:
                 - username
                 - password
@@ -1677,6 +1675,11 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Password:
+      type: string
+      description: Password of the user
+      example: j0hnD03
+      minLength: 5
     User:
       type: object
       properties:
@@ -1702,9 +1705,7 @@ components:
           description: Username of the user
           example: jDoe
         password:
-          type: string
-          description: Password of the user
-          example: j0hnD03
+          $ref: '#/components/schemas/Password'
         role:
           type: string
           description: Role of the user
@@ -1725,9 +1726,7 @@ components:
           description: Username of the user
           example: jDoe
         password:
-          type: string
-          description: Password of the user
-          example: j0hnD03
+          $ref: '#/components/schemas/Password'
         role:
           type: string
           description: Role of the user
