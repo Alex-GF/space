@@ -66,9 +66,7 @@ paths:
               description: User credentials
               properties:
                 username:
-                  type: string
-                  description: Username of the user
-                  example: jdoe
+                  $ref: '#/components/schemas/Username'
                 password:
                   $ref: '#/components/schemas/Password'
               required:
@@ -83,8 +81,7 @@ paths:
                 type: object
                 properties:
                   username:
-                    type: string
-                    example: jdoe
+                    $ref: '#/components/schemas/Username'
                   apiKey:
                     $ref: '#/components/schemas/ApiKey'
                   role:
@@ -214,10 +211,10 @@ paths:
           description: Authentication required
         '403':
           description: Insufficient permissions
-        '422':
-          $ref: '#/components/responses/UnprocessableEntity'
         '404':
           description: User not found
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
         default:
           description: Unexpected error
           content:
@@ -840,8 +837,7 @@ paths:
           description: The username of the user for filter
           required: false
           schema:
-            type: string
-            example: testUser
+            $ref: '#/components/schemas/Username'
         - name: firstName
           in: query
           description: The first name of the user for filter
@@ -1673,6 +1669,12 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
+    Username:
+      type: string
+      description: Username of the user
+      example: johndoe
+      minLength: 3
+      maxLength: 30
     Password:
       type: string
       description: Password of the user
@@ -1682,9 +1684,7 @@ components:
       type: object
       properties:
         username:
-          type: string
-          description: Username of the user
-          example: jDoe
+          $ref: '#/components/schemas/Username'
         apiKey:
           $ref: '#/components/schemas/ApiKey'
         role:
@@ -1699,9 +1699,7 @@ components:
       type: object
       properties:
         username:
-          type: string
-          description: Username of the user
-          example: jDoe
+          $ref: '#/components/schemas/Username'
         password:
           $ref: '#/components/schemas/Password'
         role:
@@ -1720,9 +1718,7 @@ components:
       type: object
       properties:
         username:
-          type: string
-          description: Username of the user
-          example: jDoe
+          $ref: '#/components/schemas/Username'
         password:
           $ref: '#/components/schemas/Password'
         role:
@@ -2620,9 +2616,7 @@ components:
           description: The email of the user
           example: john.doe@my-domain.com
         username:
-          type: string
-          description: The username of the user
-          example: j0hnD03
+          $ref: '#/components/schemas/Username'
         phone:
           type: string
           description: The phone number of the user, with international code
@@ -2978,9 +2972,7 @@ components:
                 description: The email of the user
                 example: john.doe@my-domain.com
               username:
-                type: string
-                description: The username of the user
-                example: j0hnD03
+                $ref: '#/components/schemas/Username'
               phone:
                 type: string
                 description: The phone number of the user, with international code
@@ -3051,9 +3043,7 @@ components:
       in: path
       required: true
       schema:
-        type: string
-        description: Username of the user
-        example: johndoe
+        $ref: '#/components/schemas/Username'
     ServiceName:
       name: serviceName
       in: path
