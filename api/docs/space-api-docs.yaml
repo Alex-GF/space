@@ -336,16 +336,7 @@ paths:
           schema:
             type: string
             example: Zoom
-        - name: page
-          in: query
-          description: >-
-            Page number to retrieve, starting from 1. Cannot be used with
-            `offset`. Use either `page` or `offset`, not both.
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
+        - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
         - name: limit
           in: query
@@ -858,15 +849,7 @@ paths:
           schema:
             type: string
             example: Zoom
-        - name: page
-          in: query
-          description: >-
-            Page number to retrieve, starting from 1. Cannot be used together with `offset` —use either `page` or `offset`, not both. If `offset` is specified, this parameter will be ignored.
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
+        - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
         - name: limit
           in: query
@@ -1259,16 +1242,7 @@ paths:
           schema:
             type: string
             example: 2024
-        - name: page
-          in: query
-          description: >-
-            Page number to retrieve, starting from 1. Cannot be used with
-            `offset`. Use either `page` or `offset`, not both.
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
+        - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
         - name: limit
           in: query
@@ -3054,3 +3028,14 @@ components:
       schema:
         type: integer
         minimum: 0
+    Page:
+      name: page
+      in: query
+      description: >-
+        Page number to retrieve, starting from 1. Cannot be used with
+        `offset`. Use either `page` or `offset`, not both.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
