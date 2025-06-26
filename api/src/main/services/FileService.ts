@@ -1,5 +1,6 @@
+import os from 'node:os';
 import dotenv from 'dotenv';
-import os from 'os';
+
 dotenv.config();
 
 const appPort = 3000;

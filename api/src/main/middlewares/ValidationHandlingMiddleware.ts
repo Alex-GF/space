@@ -1,4 +1,4 @@
-import { NextFunction } from 'express';
+import type { NextFunction } from 'express';
 import { Result, ValidationError, validationResult } from 'express-validator';
 
 const handleValidation = async (req: any, res: any, next: NextFunction) => {

@@ -1,12 +1,12 @@
-import container from '../config/container';
-import ContractService from '../services/ContractService';
-import {
+import container from '../config/container.js';
+import ContractService from '../services/ContractService.js';
+import type {
   ContractQueryFilters,
   ContractToCreate,
   Subscription,
   UsageLevelsResetQuery,
-} from '../types/models/Contract';
-import { removeOptionalFieldsOfQueryParams } from '../utils/controllerUtils';
+} from '../types/models/Contract.js';
+import { removeOptionalFieldsOfQueryParams } from '../utils/controllerUtils.js';
 
 class ContractController {
   private readonly contractService: ContractService;

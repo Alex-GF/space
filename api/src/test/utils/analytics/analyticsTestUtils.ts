@@ -1,6 +1,7 @@
 import { subDays } from 'date-fns';
-import AnalyticsDayMongoose from '../../../main/repositories/mongoose/models/AnalyticsDayMongoose';
-import { LeanAnalytics } from '../../../main/types/models/Analytics';
+
+import AnalyticsDayMongoose from '../../../main/repositories/mongoose/models/AnalyticsDayMongoose.js';
+import type { LeanAnalytics } from '../../../main/types/models/Analytics.js';
 
 // Create a test user directly in the database
 export const createTestAnalytics = async (): Promise<LeanAnalytics[]> => {

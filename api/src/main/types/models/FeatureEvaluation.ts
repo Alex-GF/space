@@ -1,5 +1,4 @@
-import { PaymentType } from 'pricing4ts';
-import { LeanPricingFeature } from './Pricing';
+import type { LeanPricingFeature } from './Pricing.js';
 
 export interface LeanFeature {
   info: LeanPricingFeature;

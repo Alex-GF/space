@@ -1,8 +1,8 @@
 import { isAfter } from 'date-fns';
-import container from '../config/container';
-import ServiceRepository from '../repositories/mongoose/ServiceRepository';
-import { LeanContract } from '../types/models/Contract';
-import {
+import container from '../config/container.js';
+import ServiceRepository from '../repositories/mongoose/ServiceRepository.js';
+import type { LeanContract } from '../types/models/Contract.js';
+import type {
   DetailedFeatureEvaluation,
   FeatureEvalQueryParams,
   FeatureEvaluationResult,
@@ -12,8 +12,8 @@ import {
   SimpleFeatureEvaluation,
   SingleFeatureEvalQueryParams,
   SubscriptionContext,
-} from '../types/models/FeatureEvaluation';
-import { LeanPricing } from '../types/models/Pricing';
+} from '../types/models/FeatureEvaluation.js';
+import type { LeanPricing } from '../types/models/Pricing.js';
 import {
   flattenConfigurationsIntoPricingContext,
   flattenFeatureEvaluationsIntoEvaluationContext,
@@ -21,12 +21,12 @@ import {
   getFeatureEvaluationExpressionsByService,
   getUserSubscriptionsFromContract,
   mapSubscriptionsToConfigurationsByService,
-} from '../utils/feature-evaluation/evaluationContextsManagement';
-import { evaluateAllFeatures, evaluateFeature } from '../utils/feature-evaluation/featureEvaluation';
-import ContractService from './ContractService';
-import ServiceService from './ServiceService';
-import { generateTokenFromEvalResult } from '../utils/jwt';
-import { escapeVersion } from '../utils/helpers';
+} from '../utils/feature-evaluation/evaluationContextsManagement.js';
+import { evaluateAllFeatures, evaluateFeature } from '../utils/feature-evaluation/featureEvaluation.js';
+import ContractService from './ContractService.js';
+import ServiceService from './ServiceService.js';
+import { generateTokenFromEvalResult } from '../utils/jwt.js';
+import { escapeVersion } from '../utils/helpers.js';
 
 class FeatureEvaluationService {
   private readonly serviceService: ServiceService;

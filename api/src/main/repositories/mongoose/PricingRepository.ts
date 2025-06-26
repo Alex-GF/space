@@ -1,7 +1,7 @@
-import RepositoryBase from '../RepositoryBase';
-import PricingMongoose from './models/PricingMongoose';
-import { toPlainObject } from '../../utils/mongoose';
-import { LeanPricing } from '../../types/models/Pricing';
+import RepositoryBase from '../RepositoryBase.js';
+import PricingMongoose from './models/PricingMongoose.js';
+import { toPlainObject } from '../../utils/mongoose.js';
+import type { LeanPricing } from '../../types/models/Pricing.js';
 
 class PricingRepository extends RepositoryBase {
   async findById(id: string): Promise<any> {

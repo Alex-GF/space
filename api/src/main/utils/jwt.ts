@@ -1,7 +1,8 @@
 import dotenv from 'dotenv';
-import { DetailedFeatureEvaluation, PricingContext, SubscriptionContext } from '../types/models/FeatureEvaluation';
 import { SignJWT } from 'jose';
 import { pbkdf2Sync } from 'crypto';
+
+import type { DetailedFeatureEvaluation, PricingContext, SubscriptionContext } from '../types/models/FeatureEvaluation.js';
 
 dotenv.config();
 

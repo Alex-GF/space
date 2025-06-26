@@ -1,5 +1,5 @@
-import container from "../config/container";
-import EventService from "../services/EventService";
+import container from "../config/container.js";
+import EventService from "../services/EventService.js";
 
 /**
  * Controlador para gestionar las operaciones relacionadas con eventos en tiempo real.

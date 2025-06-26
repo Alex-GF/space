@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import AnalyticsService from '../services/AnalyticsService';
-import container from '../config/container';
+import AnalyticsService from '../services/AnalyticsService.js';
+import container from '../config/container.js';
 
 class AnalyticsController {
   private analyticsService: AnalyticsService;

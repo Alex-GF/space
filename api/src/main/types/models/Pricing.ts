@@ -1,5 +1,3 @@
-import { AddOn, Feature, Plan, UsageLimit } from "pricing4ts";
-
 export interface LeanPricing {
   id?: string;
   version: string;

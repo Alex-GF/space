@@ -1,6 +1,7 @@
 import { addDays } from "date-fns";
-import { LeanContract } from "../../types/models/Contract";
-import { escapeContractedServiceVersions } from "./helpers";
+
+import type { LeanContract } from "../../types/models/Contract.js";
+import { escapeContractedServiceVersions } from "./helpers.js";
 
 export function performNovation(contract: LeanContract, newSubscription: any): LeanContract {
   const newContract: LeanContract = {

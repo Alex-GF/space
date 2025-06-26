@@ -1,7 +1,7 @@
-import RepositoryBase from '../RepositoryBase';
-import ContractMongoose from './models/ContractMongoose';
-import { ContractQueryFilters, ContractToCreate, LeanContract } from '../../types/models/Contract';
-import { toPlainObject } from '../../utils/mongoose';
+import RepositoryBase from '../RepositoryBase.js';
+import ContractMongoose from './models/ContractMongoose.js';
+import type { ContractQueryFilters, ContractToCreate, LeanContract } from '../../types/models/Contract.js';
+import { toPlainObject } from '../../utils/mongoose.js';
 
 class ContractRepository extends RepositoryBase {
   async findAll(queryFilters?: ContractQueryFilters) {

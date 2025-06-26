@@ -1,8 +1,8 @@
-import { toPlainObject } from '../../utils/mongoose';
-import RepositoryBase from '../RepositoryBase';
-import UserMongoose from './models/UserMongoose';
-import { LeanUser, Role } from '../../types/models/User';
-import { generateApiKey } from '../../utils/users/helpers';
+import { toPlainObject } from '../../utils/mongoose.js';
+import RepositoryBase from '../RepositoryBase.js';
+import UserMongoose from './models/UserMongoose.js';
+import type { LeanUser, Role } from '../../types/models/User.js';
+import { generateApiKey } from '../../utils/users/helpers.js';
 
 class UserRepository extends RepositoryBase {
   async findByUsername(username: string) {

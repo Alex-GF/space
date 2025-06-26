@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { createRandomService, getAllServices, getPricingFromService } from '../services/service';
-import { TestService } from '../../types/models/Service';
-import { TestAddOn, TestPricing } from '../../types/models/Pricing';
-import { useApp } from '../testApp';
-import { ContractToCreate } from '../../../main/types/models/Contract';
-import { biasedRandomInt } from '../random';
+
+import { createRandomService, getAllServices, getPricingFromService } from '../services/service.js';
+import type { TestService } from '../../types/models/Service.js';
+import type { TestAddOn, TestPricing } from '../../types/models/Pricing.js';
+import { useApp } from '../testApp.js';
+import type { ContractToCreate } from '../../../main/types/models/Contract.js';
+import { biasedRandomInt } from '../random.js';
 
 async function generateContractAndService(
   userId?: string,

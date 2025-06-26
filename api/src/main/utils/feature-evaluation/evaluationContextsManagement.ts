@@ -1,6 +1,6 @@
-import { LeanContract, UsageLevel } from '../../types/models/Contract';
-import { EvaluationContext, PricingContext, SubscriptionContext } from '../../types/models/FeatureEvaluation';
-import { LeanAddOn, LeanPlan, LeanPricing } from '../../types/models/Pricing';
+import type { LeanContract, UsageLevel } from '../../types/models/Contract.js';
+import { EvaluationContext, PricingContext, SubscriptionContext } from '../../types/models/FeatureEvaluation.js';
+import type { LeanAddOn, LeanPlan, LeanPricing } from '../../types/models/Pricing.js';
 
 function flattenUsageLevelsIntoSubscriptionContext(
   subscriptionContextByServices: Record<string, Record<string, UsageLevel>>

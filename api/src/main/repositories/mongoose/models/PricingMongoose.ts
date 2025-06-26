@@ -1,8 +1,9 @@
 import mongoose, { Schema } from 'mongoose';
-import Feature from './schemas/Feature';
-import UsageLimit from './schemas/UsageLimit';
-import Plan from './schemas/Plan';
-import AddOn from './schemas/AddOn';
+
+import Feature from './schemas/Feature.js';
+import UsageLimit from './schemas/UsageLimit.js';
+import Plan from './schemas/Plan.js';
+import AddOn from './schemas/AddOn.js';
 
 const pricingSchema = new Schema(
   {

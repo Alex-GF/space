@@ -1,7 +1,8 @@
+import type { Server } from 'node:http';
 import dotenv from 'dotenv';
-import type { Server } from 'http';
-import { initializeServer, disconnectDatabase } from '../../main/app';
 import { Application } from 'express';
+
+import { initializeServer, disconnectDatabase } from '../../main/app.js';
 
 dotenv.config();
 

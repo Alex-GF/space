@@ -1,8 +1,8 @@
 import express from 'express';
 
-import FeatureEvaluationController from '../controllers/FeatureEvaluationController';
-import * as FeatureEvaluationValidation from '../controllers/validation/FeatureEvaluationValidation';
-import { handleValidation } from '../middlewares/ValidationHandlingMiddleware';
+import FeatureEvaluationController from '../controllers/FeatureEvaluationController.js';
+import * as FeatureEvaluationValidation from '../controllers/validation/FeatureEvaluationValidation.js';
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js';
 
 const loadFileRoutes = function (app: express.Application) {
   const featureEvaluationController = new FeatureEvaluationController();

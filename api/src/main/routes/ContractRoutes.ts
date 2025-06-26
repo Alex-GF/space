@@ -1,8 +1,8 @@
 import express from 'express';
 
-import ContractController from '../controllers/ContractController';
-import * as ContractValidator from '../controllers/validation/ContractValidation';
-import { handleValidation } from '../middlewares/ValidationHandlingMiddleware';
+import ContractController from '../controllers/ContractController.js';
+import * as ContractValidator from '../controllers/validation/ContractValidation.js';
+import { handleValidation } from '../middlewares/ValidationHandlingMiddleware.js';
 
 const loadFileRoutes = function (app: express.Application) {
   const contractController = new ContractController();

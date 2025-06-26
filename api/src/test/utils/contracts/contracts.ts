@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { ContractToCreate, UsageLevel } from '../../../main/types/models/Contract';
-import { baseUrl, getApp, useApp } from '../testApp';
 import request from 'supertest';
-import { generateContract, generateContractAndService } from './generators';
-import { TestContract } from '../../types/models/Contract';
-import { getTestAdminApiKey } from '../auth';
+
+import type { UsageLevel } from '../../../main/types/models/Contract.js';
+import { baseUrl, useApp } from '../testApp.js';
+import { generateContract, generateContractAndService } from './generators.js';
+import type { TestContract } from '../../types/models/Contract.js';
+import { getTestAdminApiKey } from '../auth.js';
 
 async function getAllContracts(app?: any): Promise<any[]> {
   
