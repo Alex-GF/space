@@ -329,18 +329,7 @@ paths:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
-        - name: order
-          in: query
-          description: >-
-            Sort the list of services by name. Use 'asc' for ascending or 'desc'
-            for descending.
-          required: false
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-            default: asc
+        - $ref: '#/components/parameters/Order'
       responses:
         '200':
           description: Successful operation
@@ -831,6 +820,7 @@ paths:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Order'
         - name: sort
           in: query
           description: Field name to sort the results by.
@@ -844,16 +834,6 @@ paths:
               - email
             example: lastName
             default: username
-        - name: order
-          in: query
-          description: Sort direction. Use 'asc' for ascending or 'desc' for descending.
-          required: false
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-            default: asc
       responses:
         '200':
           description: Successful operation
@@ -1213,6 +1193,7 @@ paths:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
         - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Order'
         - name: sort
           in: query
           description: Field name to sort the results by.
@@ -1223,16 +1204,6 @@ paths:
               - featureName
               - serviceName
             example: featureName
-        - name: order
-          in: query
-          description: Sort direction. Use 'asc' for ascending or 'desc' for descending.
-          required: false
-          schema:
-            type: string
-            enum:
-              - asc
-              - desc
-            default: asc
         - name: show
           in: query
           description: Indicates whether to list features from active pricings only, archived ones, or both.
@@ -2995,3 +2966,14 @@ components:
         maximum: 100
         default: 20
         example: 20
+    Order:
+      name: order
+      in: query
+      description: Sort direction. Use `asc` for ascending or desc`` for descending.
+      required: false
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+        default: asc
