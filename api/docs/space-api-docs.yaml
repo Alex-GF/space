@@ -338,18 +338,7 @@ paths:
             example: Zoom
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
-        - name: limit
-          in: query
-          description: >-
-            Maximum number of items to return. Useful to control pagination
-            size.
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-            default: 20
+        - $ref: '#/components/parameters/Limit'
         - name: order
           in: query
           description: >-
@@ -851,18 +840,7 @@ paths:
             example: Zoom
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
-        - name: limit
-          in: query
-          description: >-
-            Maximum number of items to return. Useful to control pagination
-            size.
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-            default: 20
+        - $ref: '#/components/parameters/Limit'
         - name: sort
           in: query
           description: Field name to sort the results by.
@@ -1244,18 +1222,7 @@ paths:
             example: 2024
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/Offset'
-        - name: limit
-          in: query
-          description: >-
-            Maximum number of items to return. Useful to control pagination
-            size.
-          required: false
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            example: 20
-            default: 20
+        - $ref: '#/components/parameters/Limit'
         - name: sort
           in: query
           description: Field name to sort the results by.
@@ -3039,3 +3006,14 @@ components:
         type: integer
         minimum: 1
         default: 1
+    Limit:
+      name: limit
+      in: query
+      description: Maximum number of items to return. Useful to control pagination size.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+        example: 20
