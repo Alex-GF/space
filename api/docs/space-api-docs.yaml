@@ -85,12 +85,7 @@ paths:
                   apiKey:
                     $ref: '#/components/schemas/ApiKey'
                   role:
-                    type: string
-                    enum: 
-                      - ADMIN
-                      - MANAGER
-                      - EVALUATOR
-                    example: ADMIN
+                    $ref: '#/components/schemas/Role'
         '401':
           description: Invalid credentials
           content:
@@ -290,12 +285,7 @@ paths:
               type: object
               properties:
                 role:
-                  type: string
-                  description: New role of the user
-                  enum: 
-                    - ADMIN
-                    - MANAGER
-                    - EVALUATOR
+                  $ref: '#/components/schemas/Role'
       responses:
         '200':
           description: Role updated
@@ -1597,6 +1587,14 @@ components:
       description: Password of the user
       example: j0hnD03
       minLength: 5
+    Role:
+      type: string
+      description: Role of the user
+      enum:
+      - ADMIN
+      - MANAGER
+      - EVALUATOR
+      example: EVALUATOR
     User:
       type: object
       properties:
@@ -1605,13 +1603,7 @@ components:
         apiKey:
           $ref: '#/components/schemas/ApiKey'
         role:
-          type: string
-          description: Role of the user
-          enum: 
-            - ADMIN
-            - MANAGER
-            - EVALUATOR
-          example: EVALUATOR
+          $ref: '#/components/schemas/Role'
     UserInput:
       type: object
       properties:
@@ -1620,14 +1612,7 @@ components:
         password:
           $ref: '#/components/schemas/Password'
         role:
-          type: string
-          description: Role of the user
-          enum: 
-            - ADMIN
-            - MANAGER
-            - EVALUATOR
-          default: EVALUATOR
-          example: EVALUATOR
+          $ref: '#/components/schemas/Role'
       required:
         - username
         - password
@@ -1639,14 +1624,7 @@ components:
         password:
           $ref: '#/components/schemas/Password'
         role:
-          type: string
-          description: Role of the user
-          enum: 
-            - ADMIN
-            - MANAGER
-            - EVALUATOR
-          default: EVALUATOR
-          example: EVALUATOR
+          $ref: '#/components/schemas/Role'
     Service:
       type: object
       properties:
