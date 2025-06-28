@@ -22,21 +22,27 @@ import {
   getUserSubscriptionsFromContract,
   mapSubscriptionsToConfigurationsByService,
 } from '../utils/feature-evaluation/evaluationContextsManagement';
-import { evaluateAllFeatures, evaluateFeature } from '../utils/feature-evaluation/featureEvaluation';
+import {
+  evaluateAllFeatures,
+  evaluateFeature,
+} from '../utils/feature-evaluation/featureEvaluation';
 import ContractService from './ContractService';
 import ServiceService from './ServiceService';
 import { generateTokenFromEvalResult } from '../utils/jwt';
 import { escapeVersion } from '../utils/helpers';
+import CacheService from './CacheService';
 
 class FeatureEvaluationService {
   private readonly serviceService: ServiceService;
   private readonly serviceRepository: ServiceRepository;
   private readonly contractService: ContractService;
+  private readonly cacheService: CacheService;
 
   constructor() {
     this.serviceRepository = container.resolve('serviceRepository');
     this.serviceService = container.resolve('serviceService');
     this.contractService = container.resolve('contractService');
+    this.cacheService = container.resolve('cacheService');
   }
 
   async index(queryParams: FeatureIndexQueryParams): Promise<LeanFeature[]> {
@@ -76,7 +82,7 @@ class FeatureEvaluationService {
     userId: string,
     options: FeatureEvalQueryParams
   ): Promise<
-    | SimpleFeatureEvaluation 
+    | SimpleFeatureEvaluation
     | DetailedFeatureEvaluation
     | {
         pricingContext: PricingContext;
@@ -84,19 +90,57 @@ class FeatureEvaluationService {
         result: SimpleFeatureEvaluation | DetailedFeatureEvaluation;
       }
   > {
+    const cachedResult = await this.cacheService.get(`features.${userId}.eval`);
+
+    if (cachedResult) {
+      if (options.details && typeof cachedResult[Object.keys(cachedResult)[0]] === 'object') {
+        if (options.returnContexts) {
+          const { subscriptionContext, pricingContext } = await this._retrieveContextsByUserId(
+            userId,
+            options.server
+          );
+          return {
+            pricingContext,
+            subscriptionContext,
+            result: cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation,
+          };
+        }
+        return cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation;
+      } else if (
+        !options.details &&
+        typeof cachedResult[Object.keys(cachedResult)[0]] !== 'object'
+      ) {
+        if (options.returnContexts) {
+          const { subscriptionContext, pricingContext } = await this._retrieveContextsByUserId(
+            userId,
+            options.server
+          );
+          return {
+            pricingContext,
+            subscriptionContext,
+            result: cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation,
+          };
+        }
+        return cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation;
+      }
+    }
+
     // Step 1: Retrieve contexts
-    const { subscriptionContext, pricingContext, evaluationContext }= await this._retrieveContextsByUserId(userId, options.server);
+    const { subscriptionContext, pricingContext, evaluationContext } =
+      await this._retrieveContextsByUserId(userId, options.server);
 
     // Step 2: Perform the evaluation
     const evaluationResults = await evaluateAllFeatures(
-      pricingContext, 
-      subscriptionContext, 
-      evaluationContext, 
+      pricingContext,
+      subscriptionContext,
+      evaluationContext,
       !options.details
     );
 
+    await this.cacheService.set(`features.${userId}.eval`, evaluationResults, 3600, true); // Cache for 1 hour
+
     // Step 3: Return appropriate response based on options
-    return options.returnContexts 
+    return options.returnContexts
       ? {
           pricingContext,
           subscriptionContext,
@@ -106,24 +150,36 @@ class FeatureEvaluationService {
   }
 
   async generatePricingToken(userId: string, options: { server: boolean }): Promise<string> {
+    const cachedToken = await this.cacheService.get(`features.${userId}.pricingToken`);
+
+    if (cachedToken) {
+      return cachedToken;
+    }
+
     const contract = await this.contractService.show(userId);
 
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
 
-    const result = await this.eval(userId, { details: true, server: options.server, returnContexts: true }) as {
-        pricingContext: PricingContext;
-        subscriptionContext: SubscriptionContext;
-        result: DetailedFeatureEvaluation;
+    const result = (await this.eval(userId, {
+      details: true,
+      server: options.server,
+      returnContexts: true,
+    })) as {
+      pricingContext: PricingContext;
+      subscriptionContext: SubscriptionContext;
+      result: DetailedFeatureEvaluation;
     };
-    
+
     const token = generateTokenFromEvalResult(
-      contract.userContact.userId, 
-      result.pricingContext, 
-      result.subscriptionContext, 
+      contract.userContact.userId,
+      result.pricingContext,
+      result.subscriptionContext,
       result.result
     );
+
+    await this.cacheService.set(`features.${userId}.pricingToken`, token, 3600, true);
 
     return token;
   }
@@ -134,17 +190,36 @@ class FeatureEvaluationService {
     expectedConsumption: Record<string, number>,
     options: SingleFeatureEvalQueryParams
   ): Promise<boolean | FeatureEvaluationResult> {
+    let evaluation = await this.cacheService.get(`features.${userId}.eval.${featureId}`);
+
+    if (evaluation && !options.revert) {
+      return evaluation as FeatureEvaluationResult;
+    }
 
     // Step 1: Retrieve contexts
-    const {subscriptionContext, pricingContext, evaluationContext} = await this._retrieveContextsByUserId(userId, options.server);
+    const { subscriptionContext, pricingContext, evaluationContext } =
+      await this._retrieveContextsByUserId(userId, options.server);
 
-    if (options.revert){
+    if (options.revert) {
       await this.contractService._revertExpectedConsumption(userId, featureId, options.latest);
       return true;
-    }else{
+    } else {
       // Step 2: Perform the evaluation
-      const evaluationResults = await evaluateFeature(featureId, pricingContext, subscriptionContext, evaluationContext, {simple: false, expectedConsumption: expectedConsumption, userId: userId});
-  
+      const evaluationResults = await evaluateFeature(
+        featureId,
+        pricingContext,
+        subscriptionContext,
+        evaluationContext,
+        { simple: false, expectedConsumption: expectedConsumption, userId: userId }
+      );
+      if (!(evaluationResults as FeatureEvaluationResult).limit) {
+        await this.cacheService.set(
+          `features.${userId}.eval.${featureId}`,
+          evaluationResults,
+          3600,
+          true
+        );
+      }
       // Step 3: Return appropriate response based on options
       return evaluationResults as FeatureEvaluationResult;
     }
@@ -310,9 +385,21 @@ class FeatureEvaluationService {
     return pricingsToReturn;
   }
 
-  async _retrieveContextsByUserId(userId: string, server: boolean = false): Promise<{subscriptionContext: SubscriptionContext, pricingContext: PricingContext, evaluationContext: Record<string, string>}> {
+  async _retrieveContextsByUserId(
+    userId: string,
+    server: boolean = false
+  ): Promise<{
+    subscriptionContext: SubscriptionContext;
+    pricingContext: PricingContext;
+    evaluationContext: Record<string, string>;
+  }> {
     // Step 1.1: Retrieve the user contract
-    let contract = await this.contractService.show(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractService.show(userId);
+      await this.cacheService.set(`contracts.${userId}`, contract, 3600, true);
+    }
 
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
@@ -338,12 +425,16 @@ class FeatureEvaluationService {
         const usageLevel = usageLevels[level];
         if (usageLevel.resetTimeStamp && isAfter(new Date(), usageLevel.resetTimeStamp)) {
           usageLevelsToRenew.push(`${serviceName}-${level}`);
+          this.cacheService.del(`contracts.${userId}`);
         }
       }
     }
 
     if (usageLevelsToRenew.length > 0) {
-      contract = await this.contractService._resetRenewableUsageLevels(contract, usageLevelsToRenew);
+      contract = await this.contractService._resetRenewableUsageLevels(
+        contract,
+        usageLevelsToRenew
+      );
     }
 
     // Step 1.4: Build the subscription context
@@ -379,7 +470,7 @@ class FeatureEvaluationService {
     const evaluationContext: Record<string, string> =
       flattenFeatureEvaluationsIntoEvaluationContext(evaluationExpressionsByService);
 
-    return {subscriptionContext, pricingContext, evaluationContext};
+    return { subscriptionContext, pricingContext, evaluationContext };
   }
 }
 

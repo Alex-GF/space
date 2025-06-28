@@ -16,7 +16,7 @@ class CacheService {
       throw new Error('Redis client not initialized');
     }
 
-    const value = await this.redisClient?.get(key);
+    const value = await this.redisClient?.get(key.toLowerCase());
 
     return value ? JSON.parse(value) : null;
   }
@@ -26,12 +26,12 @@ class CacheService {
       throw new Error('Redis client not initialized');
     }
 
-    const previousValue = await this.redisClient?.get(key);
+    const previousValue = await this.redisClient?.get(key.toLowerCase());
     if (previousValue && previousValue !== JSON.stringify(value) && !replaceIfExists) {
       throw new Error('Value already exists in cache, please use a different key.');
     }
 
-    await this.redisClient?.set(key, JSON.stringify(value), {
+    await this.redisClient?.set(key.toLowerCase(), JSON.stringify(value), {
       EX: expirationInSeconds,
     });
   }
@@ -45,6 +45,14 @@ class CacheService {
     const allKeys = await this.redisClient.keys(keyLocationPattern);
 
     return allKeys;
+  }
+
+  async del(key: string) {
+    if (!this.redisClient) {
+      throw new Error('Redis client not initialized');
+    }
+
+    await this.redisClient.del(key.toLowerCase());
   }
 }
 

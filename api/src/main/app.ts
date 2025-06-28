@@ -23,6 +23,10 @@ const initializeApp = async () => {
   await routes(app);
   await initializeDatabase();
   const redisClient = await initRedis();
+  if (["development", "testing"].includes(process.env.ENVIRONMENT ?? "")) {
+    await redisClient.sendCommand(['FLUSHALL']);
+    console.log(`${green}➜${reset}  ${bold}Redis cache cleared.${reset}`);
+  }
   container.resolve("cacheService").setRedisClient(redisClient);
   // await postInitializeDatabase(app)
   return app;
