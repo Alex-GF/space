@@ -1848,456 +1848,431 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AddOn'
-    Feature:
+    NamedEntity:
       type: object
-      required:
-        - name
-        - valueType
-        - defaultValue
-        - type
       properties:
         name:
           type: string
-          description: The name of the feature
+          description: Name of the entity
           example: meetings
         description:
           type: string
-          description: The description of the feature
+          description: Description of the entity
           example: >-
             Host and join real-time video meetings with HD audio, screen
             sharing, chat, and collaboration tools. Schedule or start meetings
             instantly, with support for up to X participants depending on your
             plan.
-        valueType:
-          type: string
-          enum:
-            - BOOLEAN
-            - NUMERIC
-            - TEXT
-          example: BOOLEAN
-        defaultValue:
-          oneOf:
-            - type: boolean
-            - type: number
-            - type: string
-          description: >-
-            This field holds the default value of your feature. All default
-            values are shared in your plan and addons. You can override your
-            features values in plans.<plan_name>.features or in
-            addOns.<addOn_name>.features section of your pricing.
-
-
-            Supported **payment methods** are: *CARD*, *GATEWAY*, *INVOICE*,
-            *ACH*, *WIRE_TRANSFER* or *OTHER*.
-
-
-            Check for more information at the offial [Pricing2Yaml
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnamedefaultvalue.
-          example: false
-        value:
-          oneOf:
-            - type: boolean
-            - type: number
-            - type: string
-          description: >-
-            The actual value of the feature that is going to be used in the
-            evaluation. This will be inferred during evaluations.
-          example: true
-        type:
-          type: string
-          description: >-
-            Indicates the type of the features. If either `INTEGRATION`,
-            `AUTOMATION` or `GUARANTEE` are selected, it's necesary to add some
-            extra fields to the feature.
-
-
-            For more information about other fields required if one of the above
-            is selected, please refer to the [official UML iPricing
-            diagram](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/understanding/iPricing).
-
-
-            For more information about when to use each type, please refer to
-            the [official
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnametype)
-          enum:
-            - INFORMATION
-            - INTEGRATION
-            - DOMAIN
-            - AUTOMATION
-            - MANAGEMENT
-            - GUARANTEE
-            - SUPPORT
-            - PAYMENT
-          example: DOMAIN
-        integrationType:
-          type: string
-          description: >-
-            Specifies the type of integration that an `INTEGRATION` feature
-            offers.
-
-
-            For more information about when to use each integrationType, please
-            refer to the [official
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnameintegrationtype).
-          enum:
-            - API
-            - EXTENSION
-            - IDENTITY_PROVIDER
-            - WEB_SAAS
-            - MARKETPLACE
-            - EXTERNAL_DEVICE
-        pricingUrls:
-          type: array
-          description: >-
-            If feature `type` is *INTEGRATION* and `integrationType` is
-            *WEB_SAAS* this field is **required**.
-
-
-            Specifies a list of URLs linking to the associated pricing page of
-            third party integrations that you offer in your pricing.
-          items:
-            type: string
-        automationType:
-          type: string
-          description: >-
-            Specifies the type of automation that an `AUTOMATION` feature
-            offers.
-
-
-            For more information about when to use each automationType, please
-            refer to the [official
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnameautomationtype).
-          enum:
-            - BOT
-            - FILTERING
-            - TRACKING
-            - TASK_AUTOMATION
-        paymentType:
-          type: string
-          description: Specifies the type of payment allowed by a `PAYMENT` feature.
-          enum:
-            - CARD
-            - GATEWAY
-            - INVOICE
-            - ACH
-            - WIRE_TRANSFER
-            - OTHER
-        docUrl:
-          type: string
-          description: |-
-            If feature `type` is *GUARANTEE* this is **required**,
-
-            URL redirecting to the guarantee or compliance documentation.
-        expression:
-          type: string
-          description: >-
-            The expression that is going to be evaluated in order to determine
-            wheter a feature is active for the user performing the request or
-            not. By default, this expression will be used to resolve evaluations
-            unless `serverExpression` is defined.
-          example: >-
-            configurationContext[meetings] && appContext[numberOfParticipants]
-            <= subscriptionContext[maxParticipants]
-        serverExpression:
-          type: string
-          description: >-
-            Configure a different expression to be evaluated only on the server
-            side.
-        render:
-          type: string
-          description: >-
-            Choose the behaviour when displaying the feature of the pricing. Use
-            this feature in the [Pricing2Yaml
-            editor](https://sphere.score.us.es/editor).
-          enum:
-            - AUTO
-            - DISABLED
-            - ENABLED
-    UsageLimit:
-      type: object
-      required:
-        - name
-        - valueType
-        - defaultValue
-        - type
-      properties:
-        name:
-          type: string
-          description: The name of the usage limit
-          example: maxParticipantsPerMeeting
-        description:
-          type: string
-          description: The description of the usage limit
-          example: >-
-            Defines the maximum number of participants allowed in a single
-            meeting session.
-        valueType:
-          type: string
-          enum:
-            - BOOLEAN
-            - NUMERIC
-          example: NUMERIC
-        defaultValue:
-          oneOf:
-            - type: boolean
-            - type: number
-          description: >-
-            This field holds the default value of your usage limit. All default
-            values are shared in your plan and addons. You can override your
-            usage limits values in plans.<plan_name>.usageLimits or in
-            addOns.<addOn_name>.usageLimits section of your pricing.
-
-
-            Check for more information at the offial [Pricing2Yaml
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#usagelimitsnamedefaultvalue).
-          example: 30
-        value:
-          oneOf:
-            - type: boolean
-            - type: number
-            - type: string
-          description: >-
-            The actual value of the usage limit that is going to be used in the
-            evaluation. This will be inferred during evaluations regaring the
-            user's subscription.
-          example: 100
-        type:
-          type: string
-          description: >-
-            Indicates the type of the usage limit.
-
-
-            - If set to RENEWABLE, the usage limit will be tracked by
-            subscriptions by default.
-
-            - If set to NON_RENEWABLE, the usage limit will only be tracked if
-            `trackable` == true
-
-
-            For more information about when to use each type, please refer to
-            the [official
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#usagelimitsnametype)
-          enum:
-            - RENEWABLE
-            - NON_RENEWABLE
-          example: RENEWABLE
-        trackable:
-          type: boolean
-          description: >-
-            Determines wether an usage limit must be tracked within the
-            subscription state or not.
-
-
-            If the `type` is set to *NON_RENEWABLE*, this field is **required**.
-          default: false
-        period:
-          $ref: '#/components/schemas/Period'
-    Plan:
-      type: object
-      required:
-        - name
-        - price
-        - features
-      properties:
-        name:
-          type: string
-          description: The name of the plan
-          example: BASIC
-        description:
-          type: string
-          description: The description of the plan
-          example: >-
-            The BASIC plan offers unlimited 1-on-1 meetings and group meetings
-            up to 40 minutes with up to 100 participants. Ideal for individuals
-            or small teams getting started with Zoom.
-        price:
-          type: number
-          description: The price of the plan
-          example: 5
-        private:
-          type: boolean
-          description: Determines wether the plan can be contracted by anyone or not
-          example: false
-          default: false
-        features:
-          type: object
-          description: >-
-            A map containing the values of features whose default value must be
-            replaced. Keys are feature names and values will replace feture's
-            default value.
-          additionalProperties:
-            oneOf:
-              - type: boolean
-                example: true
-              - type: string
-                example: ALLOWED
-            description: >-
-              The value that will be considered in evaluations for users that
-              subscribe to the plan.
-        usageLimits:
-          type: object
-          description: >-
-            A map containing the values of usage limits that must be replaced.
-            Keys are usage limit names and values will replace usage limit's
-            default value.
-          additionalProperties:
-            oneOf:
-              - type: boolean
-                example: true
-              - type: number
-                example: 1000
-            description: >-
-              The value that will be considered in evaluations for users that
-              subscribe to the plan.
-    AddOn:
-      type: object
-      required:
-        - name
-        - price
-      properties:
-        name:
-          type: string
-          description: The name of the add-on
-          example: hugeMeetings
-        description:
-          type: string
-          description: The description of the add-on
-          example: >-
-            Extends meeting capacity beyond standard limits, allowing you to
-            host large sessions with up to 1000 participants, depending on your
-            subscription. Ideal for webinars, conferences, and large-scale
-            virtual events.
-        private:
-          type: boolean
-          description: Determines wether the add-on can be contracted by anyone or not
-          example: false
-          default: false
-        price:
-          type: number
-          description: The price of the add-on
-          example: 15
-        availableFor:
-          type: array
-          description: >-
-            Indicates that your add-on is available to purchase only if the user
-            is subscribed to any of the plans indicated in this list. If the
-            field is not provided, the add-on will be available for all plans.
-
-
-            For more information, please refer to the [Pricing2Yaml
-            documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#addonsnameavailablefor)
-          items:
-            type: string
-          example:
-            - BASIC
-            - PRO
-        dependsOn:
-          type: array
-          description: >-
-            A list of add-on to which the user must be subscribed in order to
-            purchase the current addon.
-
-
-            For example: Imagine that an addon A depends on add-on B. This means
-            that in order to include in your subscription the add-on A you also
-            have to include the add-on B.
-
-
-            Therefore, you can subscribe to B or to A and B; but not exclusively
-            to A.
-          items:
-            type: string
-          example:
-            - phoneDialing
-        excludes:
-          type: array
-          description: >-
-            A list of add-on to which the user cannot be subscribed in order to
-            purchase the current addon.
-
-
-            For example: Imagine that an addon A excludes on add-on B. This
-            means that in order to include A in a subscription, B cannot be
-            contracted.
-
-
-            Therefore, you can subscribe to either A or be B; but not to both.
-          items:
-            type: string
-          example:
-            - phoneDialing
-        features:
-          type: object
-          description: >-
-            A map containing the values of features that must be replaced. Keys
-            are feature names and values will replace those defined by plans.
-          additionalProperties:
-            oneOf:
-              - type: boolean
-                example: true
-              - type: string
-                example: ALLOWED
-            description: >-
-              The value that will be considered in evaluations for users that
-              subscribe to the add-on.
-        usageLimits:
-          type: object
-          description: >-
-            A map containing the values of usage limits that must be replaced.
-            Keys are usage limits names and values will replace those defined by
-            plans
-          additionalProperties:
-            oneOf:
-              - type: boolean
-                example: true
-              - type: number
-                example: 1000
-            description: >-
-              The value that will be considered in evaluations for users that
-              subscribe to the add-on.
-        usageLimitsExtensions:
-          type: object
-          description: >-
-            A map containing the values of usage limits that must be extended.
-            Keys are usageLimits names and values will extend those defined by
-            plans.
-          additionalProperties:
-            type: number
-            description: >-
-              The value that will be added to the 'base' of the subscription in
-              order to increase the limit considered in evaluations. For
-              example: if usage limit A's base value is 10, and an add-on
-              extends it by 10, then evaluations will consider 20 as the value
-              of the usage limit'
-            example: 1000
-        subscriptionContraint:
-          type: object
-          description: >-
-            Defines some restrictions that must be taken into consideration
-            before creating a subscription.
+      required: ['name']
+    Feature:
+      allOf:
+        - $ref: '#/components/schemas/NamedEntity'
+        - type: object
+          required:
+            - valueType
+            - defaultValue
+            - type
           properties:
-            minQuantity:
-              type: integer
+            valueType:
+              type: string
+              enum:
+                - BOOLEAN
+                - NUMERIC
+                - TEXT
+              example: BOOLEAN
+            defaultValue:
+              oneOf:
+                - type: boolean
+                - type: number
+                - type: string
               description: >-
-                Indicates the minimum amount of times that an add-on must be
-                contracted in order to be included within a subscription.
-              example: 1
-              default: 1
-            maxQuantity:
-              type: integer
+                This field holds the default value of your feature. All default
+                values are shared in your plan and addons. You can override your
+                features values in plans.<plan_name>.features or in
+                addOns.<addOn_name>.features section of your pricing.
+
+
+                Supported **payment methods** are: *CARD*, *GATEWAY*, *INVOICE*,
+                *ACH*, *WIRE_TRANSFER* or *OTHER*.
+
+
+                Check for more information at the offial [Pricing2Yaml
+                documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnamedefaultvalue.
+              example: false
+            value:
+              oneOf:
+                - type: boolean
+                - type: number
+                - type: string
               description: >-
-                Indicates the maximum amount of times that an add-on must be
-                contracted in order to be included within a subscription.
-              example: null
-              default: null
-            quantityStep:
-              type: integer
+                The actual value of the feature that is going to be used in the
+                evaluation. This will be inferred during evaluations.
+              example: true
+            type:
+              type: string
               description: >-
-                Specifies the required purchase block size for this add-on. The
-                `amount` included within the subscription for this add-on must
-                be a multiple of this value.
-              example: 1
-              default: 1
+                Indicates the type of the features. If either `INTEGRATION`,
+                `AUTOMATION` or `GUARANTEE` are selected, it's necesary to add some
+                extra fields to the feature.
+
+
+                For more information about other fields required if one of the above
+                is selected, please refer to the [official UML iPricing
+                diagram](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/understanding/iPricing).
+
+
+                For more information about when to use each type, please refer to
+                the [official
+                documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnametype)
+              enum:
+                - INFORMATION
+                - INTEGRATION
+                - DOMAIN
+                - AUTOMATION
+                - MANAGEMENT
+                - GUARANTEE
+                - SUPPORT
+                - PAYMENT
+              example: DOMAIN
+            integrationType:
+              type: string
+              description: >-
+                Specifies the type of integration that an `INTEGRATION` feature
+                offers.
+
+
+                For more information about when to use each integrationType, please
+                refer to the [official
+                documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnameintegrationtype).
+              enum:
+                - API
+                - EXTENSION
+                - IDENTITY_PROVIDER
+                - WEB_SAAS
+                - MARKETPLACE
+                - EXTERNAL_DEVICE
+            pricingUrls:
+              type: array
+              description: >-
+                If feature `type` is *INTEGRATION* and `integrationType` is
+                *WEB_SAAS* this field is **required**.
+
+
+                Specifies a list of URLs linking to the associated pricing page of
+                third party integrations that you offer in your pricing.
+              items:
+                type: string
+            automationType:
+              type: string
+              description: >-
+                Specifies the type of automation that an `AUTOMATION` feature
+                offers.
+
+
+                For more information about when to use each automationType, please
+                refer to the [official
+                documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#featuresnameautomationtype).
+              enum:
+                - BOT
+                - FILTERING
+                - TRACKING
+                - TASK_AUTOMATION
+            paymentType:
+              type: string
+              description: Specifies the type of payment allowed by a `PAYMENT` feature.
+              enum:
+                - CARD
+                - GATEWAY
+                - INVOICE
+                - ACH
+                - WIRE_TRANSFER
+                - OTHER
+            docUrl:
+              type: string
+              description: |-
+                If feature `type` is *GUARANTEE* this is **required**,
+
+                URL redirecting to the guarantee or compliance documentation.
+            expression:
+              type: string
+              description: >-
+                The expression that is going to be evaluated in order to determine
+                wheter a feature is active for the user performing the request or
+                not. By default, this expression will be used to resolve evaluations
+                unless `serverExpression` is defined.
+              example: >-
+                configurationContext[meetings] && appContext[numberOfParticipants]
+                <= subscriptionContext[maxParticipants]
+            serverExpression:
+              type: string
+              description: >-
+                Configure a different expression to be evaluated only on the server
+                side.
+            render:
+              type: string
+              description: >-
+                Choose the behaviour when displaying the feature of the pricing. Use
+                this feature in the [Pricing2Yaml
+                editor](https://sphere.score.us.es/editor).
+              enum:
+                - AUTO
+                - DISABLED
+                - ENABLED
+    UsageLimit:
+      allOf:
+      - $ref: '#/components/schemas/NamedEntity'
+      - type: object
+        required:
+          - valueType
+          - defaultValue
+          - type
+        properties:
+          valueType:
+            type: string
+            enum:
+              - BOOLEAN
+              - NUMERIC
+            example: NUMERIC
+          defaultValue:
+            oneOf:
+              - type: boolean
+              - type: number
+            description: >-
+              This field holds the default value of your usage limit. All default
+              values are shared in your plan and addons. You can override your
+              usage limits values in plans.<plan_name>.usageLimits or in
+              addOns.<addOn_name>.usageLimits section of your pricing.
+
+
+              Check for more information at the offial [Pricing2Yaml
+              documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#usagelimitsnamedefaultvalue).
+            example: 30
+          value:
+            oneOf:
+              - type: boolean
+              - type: number
+              - type: string
+            description: >-
+              The actual value of the usage limit that is going to be used in the
+              evaluation. This will be inferred during evaluations regaring the
+              user's subscription.
+            example: 100
+          type:
+            type: string
+            description: >-
+              Indicates the type of the usage limit.
+
+
+              - If set to RENEWABLE, the usage limit will be tracked by
+              subscriptions by default.
+
+              - If set to NON_RENEWABLE, the usage limit will only be tracked if
+              `trackable` == true
+
+
+              For more information about when to use each type, please refer to
+              the [official
+              documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#usagelimitsnametype)
+            enum:
+              - RENEWABLE
+              - NON_RENEWABLE
+            example: RENEWABLE
+          trackable:
+            type: boolean
+            description: >-
+              Determines wether an usage limit must be tracked within the
+              subscription state or not.
+
+
+              If the `type` is set to *NON_RENEWABLE*, this field is **required**.
+            default: false
+          period:
+            $ref: '#/components/schemas/Period'
+    Plan:
+      allOf:
+      - $ref: '#/components/schemas/NamedEntity'          
+      - type: object
+        required:
+          - price
+          - features
+        properties:
+          price:
+            type: number
+            description: The price of the plan
+            example: 5
+          private:
+            type: boolean
+            description: Determines wether the plan can be contracted by anyone or not
+            example: false
+            default: false
+          features:
+            type: object
+            description: >-
+              A map containing the values of features whose default value must be
+              replaced. Keys are feature names and values will replace feture's
+              default value.
+            additionalProperties:
+              oneOf:
+                - type: boolean
+                  example: true
+                - type: string
+                  example: ALLOWED
+              description: >-
+                The value that will be considered in evaluations for users that
+                subscribe to the plan.
+          usageLimits:
+            type: object
+            description: >-
+              A map containing the values of usage limits that must be replaced.
+              Keys are usage limit names and values will replace usage limit's
+              default value.
+            additionalProperties:
+              oneOf:
+                - type: boolean
+                  example: true
+                - type: number
+                  example: 1000
+              description: >-
+                The value that will be considered in evaluations for users that
+                subscribe to the plan.
+    AddOn:
+      allOf:
+      - $ref: '#/components/schemas/NamedEntity'
+      - type: object
+        required:
+          - price
+        properties:
+          private:
+            type: boolean
+            description: Determines wether the add-on can be contracted by anyone or not
+            example: false
+            default: false
+          price:
+            type: number
+            description: The price of the add-on
+            example: 15
+          availableFor:
+            type: array
+            description: >-
+              Indicates that your add-on is available to purchase only if the user
+              is subscribed to any of the plans indicated in this list. If the
+              field is not provided, the add-on will be available for all plans.
+
+
+              For more information, please refer to the [Pricing2Yaml
+              documentation](https://pricing4saas-docs.vercel.app/docs/2.0.1/api/Pricing2Yaml/pricing2yaml-v30-specification#addonsnameavailablefor)
+            items:
+              type: string
+            example:
+              - BASIC
+              - PRO
+          dependsOn:
+            type: array
+            description: >-
+              A list of add-on to which the user must be subscribed in order to
+              purchase the current addon.
+
+
+              For example: Imagine that an addon A depends on add-on B. This means
+              that in order to include in your subscription the add-on A you also
+              have to include the add-on B.
+
+
+              Therefore, you can subscribe to B or to A and B; but not exclusively
+              to A.
+            items:
+              type: string
+            example:
+              - phoneDialing
+          excludes:
+            type: array
+            description: >-
+              A list of add-on to which the user cannot be subscribed in order to
+              purchase the current addon.
+
+
+              For example: Imagine that an addon A excludes on add-on B. This
+              means that in order to include A in a subscription, B cannot be
+              contracted.
+
+
+              Therefore, you can subscribe to either A or be B; but not to both.
+            items:
+              type: string
+            example:
+              - phoneDialing
+          features:
+            type: object
+            description: >-
+              A map containing the values of features that must be replaced. Keys
+              are feature names and values will replace those defined by plans.
+            additionalProperties:
+              oneOf:
+                - type: boolean
+                  example: true
+                - type: string
+                  example: ALLOWED
+              description: >-
+                The value that will be considered in evaluations for users that
+                subscribe to the add-on.
+          usageLimits:
+            type: object
+            description: >-
+              A map containing the values of usage limits that must be replaced.
+              Keys are usage limits names and values will replace those defined by
+              plans
+            additionalProperties:
+              oneOf:
+                - type: boolean
+                  example: true
+                - type: number
+                  example: 1000
+              description: >-
+                The value that will be considered in evaluations for users that
+                subscribe to the add-on.
+          usageLimitsExtensions:
+            type: object
+            description: >-
+              A map containing the values of usage limits that must be extended.
+              Keys are usageLimits names and values will extend those defined by
+              plans.
+            additionalProperties:
+              type: number
+              description: >-
+                The value that will be added to the 'base' of the subscription in
+                order to increase the limit considered in evaluations. For
+                example: if usage limit A's base value is 10, and an add-on
+                extends it by 10, then evaluations will consider 20 as the value
+                of the usage limit'
+              example: 1000
+          subscriptionContraint:
+            type: object
+            description: >-
+              Defines some restrictions that must be taken into consideration
+              before creating a subscription.
+            properties:
+              minQuantity:
+                type: integer
+                description: >-
+                  Indicates the minimum amount of times that an add-on must be
+                  contracted in order to be included within a subscription.
+                example: 1
+                default: 1
+              maxQuantity:
+                type: integer
+                description: >-
+                  Indicates the maximum amount of times that an add-on must be
+                  contracted in order to be included within a subscription.
+                example: null
+                default: null
+              quantityStep:
+                type: integer
+                description: >-
+                  Specifies the required purchase block size for this add-on. The
+                  `amount` included within the subscription for this add-on must
+                  be a multiple of this value.
+                example: 1
+                default: 1
     Period:
       type: object
       description: >-
@@ -2467,8 +2442,7 @@ components:
         - username
       properties:
         userId:
-          type: string
-          example: 68062d8a7274336e191fdabb
+          $ref: '#/components/schemas/ObjectId'
         fistName:
           type: string
           description: The first name of the user
