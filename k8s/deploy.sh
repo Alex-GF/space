@@ -7,7 +7,7 @@ kubectl apply -f config/
 echo "Deploying services..."
 kubectl apply -f pods/
 echo "Deploying ingress rules..."
-kubectl apply -f ingress.yml
+kubectl apply -f load-balancer/
 
 # k8s_dashboard_deploy:
 # 	@echo "Accessing k8s dashboard"

@@ -1,5 +1,5 @@
 echo "Removing ingress rules..."
-kubectl delete -f ingress.yml
+kubectl delete -f load-balancer/
 echo "Removing services..."
 kubectl delete -f pods/
 echo "Removing ingress controller..."
