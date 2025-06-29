@@ -5,7 +5,7 @@ metadata:
     app: server
   name: server-deployment
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: server-pod
@@ -23,13 +23,6 @@ spec:
               name: server-config
         image: space-api-space-server
         imagePullPolicy: IfNotPresent
-        resources:
-          requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
         livenessProbe:
           exec:
             command:
