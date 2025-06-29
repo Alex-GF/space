@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: server-config
+data:
+  ENVIRONMENT: production
+  JWT_EXPIRATION: 1d
+  JWT_SALT: wgv~eb6v=VWwC9GIG1q6rZ]J.tUM(M
+  JWT_SECRET: test_secret
+  MONGO_URI: mongodb://mongoUser:mongoPassword@mongodb-service:27017/space_db
+  REDIS_URL: redis://redis-service:6379

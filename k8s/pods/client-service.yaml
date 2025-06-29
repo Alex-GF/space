@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: client
+  name: client-service
+spec:
+  ports:
+  - name: http
+    port: 5050
+    targetPort: 5050
+  selector:
+    app: client-pod
+  type: ClusterIP

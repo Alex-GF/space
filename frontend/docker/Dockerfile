@@ -25,8 +25,8 @@ COPY ./tsconfig.node.json .
 COPY ./vite.config.ts .
 COPY ./index.html .
 
-ENV VITE_ENVIRONMENT=production
-ENV VITE_SPACE_BASE_URL=http://localhost:5403/api/v1
+ARG VITE_ENVIRONMENT
+ARG VITE_SPACE_BASE_URL
 
 # Build your application
 RUN pnpm run build

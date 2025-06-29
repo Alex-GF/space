@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: space-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: api-nginx
+  rules:
+    - host: localhost
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: client-service
+              port: 
+                name: http
+        - path: /api/(.*)
+          pathType: Prefix
+          backend:
+            service:
+              name: server-service
+              port: 
+                name: http

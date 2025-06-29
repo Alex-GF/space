@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: mongodb
+  name: mongodb-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-pod
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mongodb-pod
+    spec:
+      containers:
+        - name: space-mongodb
+          image: mongo:7.0.16
+          envFrom:
+            - configMapRef:
+                name: mongodb-config
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongodb-volume
+            - mountPath: /docker-entrypoint-initdb.d/init-mongo.sh
+              name: mongodb-cm1
+              subPath: init-mongo.sh
+              readOnly: true
+      restartPolicy: Always
+      volumes:
+        - name: mongodb-volume
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+        - name: mongodb-cm1
+          configMap:
+            name: mongodb-config
