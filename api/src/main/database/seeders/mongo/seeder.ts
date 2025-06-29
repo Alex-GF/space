@@ -4,16 +4,16 @@ import { fileURLToPath } from 'url';
 import { getMongoDBConnectionURI } from '../../../config/mongoose';
 
 const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+const __dirname = path.dirname(__filename);
 
-    const config = {
-      database: getMongoDBConnectionURI(),
-      dropDatabase: true
-    };
+const config = {
+  database: getMongoDBConnectionURI(),
+  dropDatabase: true
+};
 
-    const seeder = new Seeder(config);
+const seeder = new Seeder(config);
 
-    const collections = seeder.readCollectionsFromPath(path.resolve(__dirname));
+const collections = seeder.readCollectionsFromPath(path.resolve(__dirname));
 
 export const seedDatabase = async () => {
   try {
