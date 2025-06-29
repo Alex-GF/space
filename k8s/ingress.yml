@@ -25,3 +25,10 @@ spec:
               name: server-service
               port: 
                 name: http
+        - path: /events
+          pathType: Prefix
+          backend:
+            service:
+              name: server-service
+              port:
+                name: http
