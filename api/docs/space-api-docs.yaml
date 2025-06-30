@@ -2906,8 +2906,7 @@ components:
       description: The id of the user for locating the contract
       required: true
       schema:
-        type: string
-        example: 680542cf34781df198b9a1aa
+        $ref: '#/components/schemas/ObjectId'
     Offset:
       name: offset
       in: query
