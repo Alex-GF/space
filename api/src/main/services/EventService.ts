@@ -25,11 +25,11 @@ class EventService {
     });
 
     // Configuración del adaptador Redis para Socket.IO
-    const pubClient = createClient({ url: process.env.REDIS_URL });
-    const subClient = pubClient.duplicate();
-    await pubClient.connect();
-    await subClient.connect();
-    this.io.adapter(createAdapter(pubClient, subClient));
+    // const pubClient = createClient({ url: process.env.REDIS_URL });
+    // const subClient = pubClient.duplicate();
+    // await pubClient.connect();
+    // await subClient.connect();
+    // this.io.adapter(createAdapter(pubClient, subClient));
 
     this.setupEventHandlers();
   }
