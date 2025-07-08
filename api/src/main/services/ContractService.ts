@@ -160,6 +160,7 @@ class ContractService {
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
     
     await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
+    await this.cacheService.del(`features.${userId}.*`)
 
     return result;
   }
@@ -196,6 +197,7 @@ class ContractService {
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
     
     await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
+    await this.cacheService.del(`features.${userId}.*`)
 
     return result;
   }
@@ -228,6 +230,7 @@ class ContractService {
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
     
     await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
+    await this.cacheService.del(`features.${userId}.*`)
 
     return result;
   }
@@ -264,7 +267,8 @@ class ContractService {
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
     
     await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
-    
+    await this.cacheService.del(`features.${userId}.*`)
+
     return result;
   }
 
@@ -309,7 +313,8 @@ class ContractService {
     updatedContract.contractedServices = resetEscapeContractedServiceVersions(updatedContract.contractedServices);
 
     await this.cacheService.set(`contracts.${userId}`, updatedContract, 3600, true); // Cache for 1 hour
-
+    await this.cacheService.del(`features.${userId}.*`)
+    
     return updatedContract;
   }
 

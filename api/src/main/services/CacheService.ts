@@ -52,7 +52,15 @@ class CacheService {
       throw new Error('Redis client not initialized');
     }
 
-    await this.redisClient.del(key.toLowerCase());
+    if (key.endsWith('.*')) {
+      const pattern = key.toLowerCase().slice(0, -2); // Remove the ".*" suffix
+      const keysToDelete = await this.redisClient.keys(`${pattern}*`);
+      if (keysToDelete.length > 0) {
+        await this.redisClient.del(keysToDelete);
+      }
+    } else {
+      await this.redisClient.del(key.toLowerCase());
+    }
   }
 }
 
