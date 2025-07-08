@@ -47,7 +47,14 @@ class ContractService {
   }
 
   async show(userId: string): Promise<LeanContract> {
-    const contract = await this.contractRepository.findByUserId(userId);
+
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+      await this.cacheService.set(`contracts.${userId}`, contract, 3600, true); // Cache for 1 hour
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -123,14 +130,21 @@ class ContractService {
     }
 
     const contract = await this.contractRepository.create(contractDataToCreate);
-
+    
     contract.contractedServices = resetEscapeContractedServiceVersions(contract.contractedServices);
+    
+    await this.cacheService.set(`contracts.${contract.userContact.userId}`, contract, 3600, true); // Cache for 1 hour
 
     return contract;
   }
 
   async novate(userId: string, newSubscription: any): Promise<LeanContract> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -138,18 +152,24 @@ class ContractService {
     const newContract = performNovation(contract, newSubscription);
 
     const result = await this.contractRepository.update(userId, newContract);
-
+    
     if (!result) {
       throw new Error(`Failed to update contract for userId ${userId}`);
     }
-
+    
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
+    
+    await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
 
     return result;
   }
 
   async renew(userId: string): Promise<LeanContract> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
 
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
@@ -174,6 +194,8 @@ class ContractService {
     }
 
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
+    
+    await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
 
     return result;
   }
@@ -182,7 +204,12 @@ class ContractService {
     userId: string,
     userContact: Omit<UserContact, 'userId'>
   ): Promise<LeanContract> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -199,6 +226,8 @@ class ContractService {
     }
 
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
+    
+    await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
 
     return result;
   }
@@ -207,7 +236,12 @@ class ContractService {
     userId: string,
     newBillingPeriod: { endDate: Date; autoRenew: boolean; renewalDays: number }
   ): Promise<LeanContract> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -228,7 +262,9 @@ class ContractService {
     }
 
     result.contractedServices = resetEscapeContractedServiceVersions(result.contractedServices);
-
+    
+    await this.cacheService.set(`contracts.${userId}`, result, 3600, true); // Cache for 1 hour
+    
     return result;
   }
 
@@ -237,7 +273,12 @@ class ContractService {
     queryParams: UsageLevelsResetQuery,
     usageLevelsIncrements?: Record<string, Record<string, number>>
   ): Promise<LeanContract> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -267,6 +308,8 @@ class ContractService {
 
     updatedContract.contractedServices = resetEscapeContractedServiceVersions(updatedContract.contractedServices);
 
+    await this.cacheService.set(`contracts.${userId}`, updatedContract, 3600, true); // Cache for 1 hour
+
     return updatedContract;
   }
 
@@ -275,7 +318,12 @@ class ContractService {
     usageLimitId: string,
     expectedConsumption: number
   ): Promise<void> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -297,6 +345,9 @@ class ContractService {
       if (!updatedContract) {
         throw new Error(`Failed to update contract for userId ${userId}`);
       }
+
+      await this.cacheService.set(`contracts.${userId}`, updatedContract, 3600, true); // Cache for 1 hour
+
     } else {
       throw new Error(`Usage level ${usageLimit} not found in contract for userId ${userId}`);
     }
@@ -307,7 +358,12 @@ class ContractService {
     usageLimitId: string,
     latest: boolean = false
   ): Promise<void> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
@@ -336,6 +392,8 @@ class ContractService {
       if (!updatedContract) {
         throw new Error(`Failed to update contract for userId ${userId}`);
       }
+
+      await this.cacheService.set(`contracts.${userId}`, updatedContract, 3600, true); // Cache for 1 hour
     } else {
       throw new Error(
         `Usage level ${usageLimit} not found in contract for user ${contract.userContact.username}`
@@ -350,12 +408,19 @@ class ContractService {
   }
 
   async destroy(userId: string): Promise<void> {
-    const contract = await this.contractRepository.findByUserId(userId);
+    let contract = await this.cacheService.get(`contracts.${userId}`);
+
+    if (!contract) {
+      contract = await this.contractRepository.findByUserId(userId);
+    }
+
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
 
     await this.contractRepository.destroy(userId);
+
+    this.cacheService.del(`contracts.${userId}`);
   }
 
   async _getCachedUsageLevel(

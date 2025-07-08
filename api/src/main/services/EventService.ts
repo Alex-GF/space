@@ -1,5 +1,7 @@
 import { Server as SocketIOServer } from 'socket.io';
 import { Server } from 'http';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { createClient } from 'redis';
 
 /**
  * Servicio encargado de gestionar eventos en tiempo real usando WebSockets.
@@ -12,14 +14,22 @@ class EventService {
    * Inicializa el servicio de eventos con un servidor HTTP.
    * @param server - El servidor HTTP de la aplicación
    */
-  initialize(server: Server): void {
+  async initialize(server: Server): Promise<void> {
     this.io = new SocketIOServer(server, {
       cors: {
         origin: '*',
         methods: ['GET', 'POST']
       },
-      path: '/events'
+      path: '/events',
+      transports: ['websocket']
     });
+
+    // Configuración del adaptador Redis para Socket.IO
+    // const pubClient = createClient({ url: process.env.REDIS_URL });
+    // const subClient = pubClient.duplicate();
+    // await pubClient.connect();
+    // await subClient.connect();
+    // this.io.adapter(createAdapter(pubClient, subClient));
 
     this.setupEventHandlers();
   }

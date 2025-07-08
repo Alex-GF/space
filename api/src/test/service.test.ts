@@ -121,7 +121,7 @@ describe('Services API Test Suite', function () {
     });
 
     it('Should return 200 and the updated pricing', async function () {
-      const newName = 'New Zoom';
+      const newName = 'new name for service';
 
       const serviceBeforeUpdate = await getService(testService, app);
       expect(serviceBeforeUpdate.name.toLowerCase()).toBe(testService.toLowerCase());
@@ -134,8 +134,13 @@ describe('Services API Test Suite', function () {
       expect(responseUpdate.body).toBeDefined();
       expect(responseUpdate.body.name).toEqual(newName);
 
+      await request(app)
+        .put(`${baseUrl}/services/${responseUpdate.body.name}`)
+        .set('x-api-key', adminApiKey)
+        .send({ name: testService });
+
       const serviceAfterUpdate = await getService(testService, app);
-      expect(serviceAfterUpdate.name.toLowerCase()).toBe(newName.toLowerCase());
+      expect(serviceAfterUpdate.name.toLowerCase()).toBe(testService.toLowerCase());
     });
   });
 

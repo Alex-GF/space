@@ -28,13 +28,13 @@ class AnalyticsService {
       });
 
       // Reset counters
-      this.cacheService.set('analytics.lastPersistedDate', today, this.expirationTime, true);
-      this.cacheService.set('analytics.apiCalls', 1, this.expirationTime, true);
-      this.cacheService.set('analytics.evaluations', 1, this.expirationTime, true);
+      await this.cacheService.set('analytics.lastPersistedDate', today, this.expirationTime, true);
+      await this.cacheService.set('analytics.apiCalls', 1, this.expirationTime, true);
+      await this.cacheService.set('analytics.evaluations', 1, this.expirationTime, true);
     }else{
-      this.cacheService.set('analytics.apiCalls', lastApiCalls + 1, this.expirationTime, true);
+      await this.cacheService.set('analytics.apiCalls', lastApiCalls + 1, this.expirationTime, true);
       if (isFeatureCall) {
-        this.cacheService.set('analytics.evaluations', lastEvaluations + 1, this.expirationTime, true);
+        await this.cacheService.set('analytics.evaluations', lastEvaluations + 1, this.expirationTime, true);
       }
     }
   }

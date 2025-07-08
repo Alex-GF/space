@@ -556,6 +556,7 @@ describe('Features API Test Suite', function () {
             get = vi.fn().mockResolvedValue(null);
             set = vi.fn().mockResolvedValue(undefined);
             match = vi.fn().mockResolvedValue([]);
+            del = vi.fn().mockResolvedValue(undefined);
             setRedisClient = vi.fn();
           }
         };
@@ -623,6 +624,7 @@ describe('Features API Test Suite', function () {
             get = vi.fn().mockResolvedValue(null);
             set = vi.fn().mockResolvedValue(undefined);
             match = vi.fn().mockResolvedValue([]);
+            del = vi.fn().mockResolvedValue(undefined);
             setRedisClient = vi.fn();
           }
         };

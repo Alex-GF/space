@@ -19,21 +19,22 @@ import { generateUsageLevels } from '../utils/contracts/helpers';
 import mongoose from 'mongoose';
 import { escapeVersion } from '../utils/helpers';
 import { resetEscapeVersionInService } from '../utils/services/helpers';
+import CacheService from './CacheService';
 // import CacheService from "./CacheService";
 
 class ServiceService {
   private readonly serviceRepository: ServiceRepository;
   private readonly pricingRepository: PricingRepository;
   private readonly contractRepository: ContractRepository;
+  private readonly cacheService: CacheService;
   private readonly eventService;
-  // private cacheService: CacheService;
 
   constructor() {
     this.serviceRepository = container.resolve('serviceRepository');
     this.pricingRepository = container.resolve('pricingRepository');
     this.contractRepository = container.resolve('contractRepository');
     this.eventService = container.resolve('eventService');
-    // this.cacheService = container.resolve('cacheService');
+    this.cacheService = container.resolve('cacheService');
   }
 
   async index(queryParams: ServiceQueryFilters) {
@@ -56,7 +57,12 @@ class ServiceService {
   }
 
   async indexPricings(serviceName: string, pricingStatus: string) {
-    const service = await this.serviceRepository.findByName(serviceName);
+    let service = await this.cacheService.get(`service.${serviceName}`);
+
+    if (!service) {
+      service = await this.serviceRepository.findByName(serviceName);
+      await this.cacheService.set(`service.${serviceName}`, service, 3600, true);
+    }
 
     if (!service) {
       throw new Error(`Service ${serviceName} not found`);
@@ -65,7 +71,7 @@ class ServiceService {
     const pricingsToReturn =
       pricingStatus === 'active' ? service.activePricings : service.archivedPricings;
 
-    if (!pricingsToReturn){
+    if (!pricingsToReturn) {
       return [];
     }
 
@@ -94,10 +100,14 @@ class ServiceService {
   }
 
   async show(serviceName: string) {
-    const service = await this.serviceRepository.findByName(serviceName);
+    let service = await this.cacheService.get(`service.${serviceName}`);
 
     if (!service) {
-      throw new Error(`Service ${serviceName} not found`);
+      service = await this.serviceRepository.findByName(serviceName);
+      await this.cacheService.set(`service.${serviceName}`, service, 3600, true);
+      if (!service) {
+        throw new Error(`Service ${serviceName} not found`);
+      }
     }
 
     resetEscapeVersionInService(service);
@@ -106,14 +116,21 @@ class ServiceService {
   }
 
   async showPricing(serviceName: string, pricingVersion: string) {
-    const service = await this.serviceRepository.findByName(serviceName);
+
+    let service = await this.cacheService.get(`service.${serviceName}`);
+
+    if (!service){
+      service = await this.serviceRepository.findByName(serviceName);
+    }
+
     const formattedPricingVersion = escapeVersion(pricingVersion);
     if (!service) {
       throw new Error(`Service ${serviceName} not found`);
     }
 
     const pricingLocator =
-      service.activePricings[formattedPricingVersion] || service.archivedPricings[formattedPricingVersion];
+      service.activePricings[formattedPricingVersion] ||
+      service.archivedPricings[formattedPricingVersion];
 
     if (!pricingLocator) {
       throw new Error(`Pricing version ${pricingVersion} not found for service ${serviceName}`);
@@ -126,9 +143,25 @@ class ServiceService {
     }
 
     if (pricingLocator.id) {
-      return await this.pricingRepository.findById(pricingLocator.id);
+
+      let pricing = await this.cacheService.get(`pricing.id.${pricingLocator.id}`);
+
+      if (!pricing){
+        pricing = await this.pricingRepository.findById(pricingLocator.id);
+        await this.cacheService.set(`pricing.id.${pricingLocator.id}`, pricing, 3600, true);
+      }
+
+      return pricing;
     } else {
-      return await this._getPricingFromUrl(pricingLocator.url);
+
+      let pricing = await this.cacheService.get(`pricing.url.${pricingLocator.url}`);
+
+      if (!pricing) {
+        pricing = await this._getPricingFromUrl(pricingLocator.url);
+        await this.cacheService.set(`pricing.url.${pricingLocator.url}`, pricing, 3600, true);
+      }
+
+      return pricing;
     }
   }
 
@@ -150,6 +183,7 @@ class ServiceService {
     pricingType: 'file' | 'url'
   ) {
     try {
+      this.cacheService.del(`service.${serviceName}`);
       if (pricingType === 'file') {
         return await this._createFromFile(receivedPricing, serviceName);
       } else {
@@ -213,9 +247,9 @@ class ServiceService {
         },
       };
 
-      try{
+      try {
         service = await this.serviceRepository.create(serviceData);
-      }catch (err) {
+      } catch (err) {
         throw new Error(`Service ${uploadedPricing.saasName} not saved: ${(err as Error).message}`);
       }
     } else {
@@ -302,7 +336,9 @@ class ServiceService {
       });
 
       if (!updatedService) {
-        throw new Error(`Service ${serviceName} not updated with pricing ${uploadedPricing.version}`);
+        throw new Error(
+          `Service ${serviceName} not updated with pricing ${uploadedPricing.version}`
+        );
       }
 
       resetEscapeVersionInService(updatedService);
@@ -312,13 +348,24 @@ class ServiceService {
   }
 
   async update(serviceName: string, newServiceData: any) {
-    const service = await this.serviceRepository.findByName(serviceName);
+
+    let service = await this.cacheService.get(`service.${serviceName}`);
+
+    if (!service) {
+      service = await this.serviceRepository.findByName(serviceName);
+    }
 
     if (!service) {
       throw new Error(`Service ${serviceName} not found`);
     }
 
     const updatedService = await this.serviceRepository.update(service.name, newServiceData);
+    if (newServiceData.name && newServiceData.name !== service.name) {
+      // If the service name has changed, we need to update the cache key
+      await this.cacheService.del(`service.${service.name}`);
+      serviceName = newServiceData.name;
+    }
+    await this.cacheService.set(`service.${serviceName}`, updatedService, 3600, true);
 
     return updatedService;
   }
@@ -329,7 +376,13 @@ class ServiceService {
     newAvailability: 'active' | 'archived',
     fallBackSubscription: FallBackSubscription
   ) {
-    const service = await this.serviceRepository.findByName(serviceName);
+
+    let service = await this.cacheService.get(`service.${serviceName}`);
+
+    if (!service) {
+      service = await this.serviceRepository.findByName(serviceName);
+    }
+
     const formattedPricingVersion = escapeVersion(pricingVersion);
 
     if (!service) {
@@ -361,7 +414,8 @@ class ServiceService {
     }
 
     const pricingLocator =
-      service.activePricings[formattedPricingVersion] ?? service.archivedPricings[formattedPricingVersion];
+      service.activePricings[formattedPricingVersion] ??
+      service.archivedPricings[formattedPricingVersion];
 
     if (!pricingLocator) {
       throw new Error(`Pricing version ${pricingVersion} not found for service ${serviceName}`);
@@ -377,6 +431,7 @@ class ServiceService {
 
       // Emitir evento de cambio de pricing (activación)
       this.eventService.emitPricingActivedMessage(service.name, pricingVersion);
+      await this.cacheService.set(`service.${serviceName}`, updatedService, 3600, true);
     } else {
       updatedService = await this.serviceRepository.update(service.name, {
         [`activePricings.${formattedPricingVersion}`]: undefined,
@@ -385,6 +440,7 @@ class ServiceService {
 
       // Emitir evento de cambio de pricing (archivado)
       this.eventService.emitPricingArchivedMessage(service.name, pricingVersion);
+      await this.cacheService.set(`service.${serviceName}`, updatedService, 3600, true);
 
       if (
         fallBackSubscription &&
@@ -407,7 +463,6 @@ class ServiceService {
       resetEscapeVersionInService(updatedService);
     }
 
-
     return updatedService;
   }
 
@@ -417,7 +472,12 @@ class ServiceService {
   }
 
   async disable(serviceName: string) {
-    const service = await this.serviceRepository.findByName(serviceName);
+    let service = await this.cacheService.get(`service.${serviceName}`);
+
+    if (!service) {
+      service = await this.serviceRepository.findByName(serviceName);
+    }
+
     if (!service) {
       throw new Error(`Service ${serviceName} not found`);
     }
@@ -429,14 +489,21 @@ class ServiceService {
     }
 
     const result = await this.serviceRepository.disable(service.name);
-
+  
     this.eventService.emitServiceDisabledMessage(service.name);
+    this.cacheService.del(`service.${serviceName}`);
 
     return result;
   }
 
   async destroyPricing(serviceName: string, pricingVersion: string) {
-    const service = await this.serviceRepository.findByName(serviceName);
+
+    let service = await this.cacheService.get(`service.${serviceName}`);
+
+    if (!service) {
+      service = await this.serviceRepository.findByName(serviceName);
+    }
+
     if (!service) {
       throw new Error(`Service ${serviceName} not found`);
     }
@@ -459,12 +526,15 @@ class ServiceService {
 
     if (pricingLocator.id) {
       await this.pricingRepository.destroy(pricingLocator.id);
+      this.cacheService.del(`pricing.id.${pricingLocator.id}`);
+      this.cacheService.del(`pricing.url.${pricingLocator.url}`);
     }
 
     const result = await this.serviceRepository.update(service.name, {
       [`activePricings.${formattedPricingVersion}`]: undefined,
       [`archivedPricings.${formattedPricingVersion}`]: undefined,
     });
+    await this.cacheService.set(`service.${serviceName}`, result, 3600, true);
 
     return result;
   }
