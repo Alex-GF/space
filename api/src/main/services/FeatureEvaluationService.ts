@@ -172,7 +172,7 @@ class FeatureEvaluationService {
       result: DetailedFeatureEvaluation;
     };
 
-    const token = generateTokenFromEvalResult(
+    const token = await generateTokenFromEvalResult(
       contract.userContact.userId,
       result.pricingContext,
       result.subscriptionContext,

@@ -23,6 +23,7 @@ describe('Events API Test Suite', function () {
     socketClient = io(`ws://localhost:3000`, {
       path: '/events',
       autoConnect: false,
+      transports: ['websocket'],
     });
 
     // Create a namespace client for pricing events
