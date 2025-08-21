@@ -2364,7 +2364,7 @@ components:
                 consumed: 2
               maxVisits: 
                 consumed: 5
-                resetTimeStamp: "2025-07-31"
+                resetTimeStamp: "2025-07-31T00:00:00Z"
         contractedServices:
           $ref: '#/components/schemas/ContractedService'
         subscriptionPlans:
@@ -2382,20 +2382,16 @@ components:
         - endDate
       properties:
         startDate:
-          type: string
-          format: date
           description: >-
-            The date on which the current billing period started. It must be
-            specified as a string in the ISO 8601 format (yyyy-mm-dd)
-          example: '2025-04-18'
+            The date on which the current billing period started
+          $ref: '#/components/schemas/Date'
+          example: '2025-04-18T00:00:00Z'
         endDate:
-          type: string
-          format: date
           description: >-
             The date on which the current billing period is expected to end or
-            to be renewed. It must be specified as a string in the ISO 8601
-            format (yyyy-mm-dd)
-          example: '2025-12-31'
+            to be renewed
+          example: '2025-12-31T00:00:00Z'
+          $ref: '#/components/schemas/Date'
         autoRenew:
           type: boolean
           description: >-
@@ -2435,6 +2431,10 @@ components:
       example:
         zoom: "2025"
         petclinic: "2024"
+    UserId:
+      type: string
+      description: The id of the contract of the user
+      example: 01c36d29-0d6a-4b41-83e9-8c6d9310c508
     UserContact:
       type: object
       required:
@@ -2442,7 +2442,11 @@ components:
         - username
       properties:
         userId:
-          $ref: '#/components/schemas/ObjectId'
+          type: string
+          description: The id of the contract of the user
+          example: 01c36d29-0d6a-4b41-83e9-8c6d9310c508
+        username:
+          $ref: '#/components/schemas/Username'
         fistName:
           type: string
           description: The first name of the user
@@ -2455,8 +2459,6 @@ components:
           type: string
           description: The email of the user
           example: john.doe@my-domain.com
-        username:
-          $ref: '#/components/schemas/Username'
         phone:
           type: string
           description: The phone number of the user, with international code
@@ -2505,15 +2507,11 @@ components:
       type: object
       properties:
         startDate:
-          type: string
-          format: date
           description: >-
-            The date on which the user started using the subscription snapshot.
-            It must be specified as a string in the ISO 8601 format (yyyy-mm-dd)
-          example: '2024-04-18'
+            The date on which the user started using the subscription snapshot
+          example: '2024-04-18T00:00:00Z'
+          $ref: '#/components/schemas/Date'
         endDate:
-          type: string
-          format: date
           description: >-
             The date on which the user finished using the subscription snapshot,
             either because the contract suffered a novation, i.e. the
@@ -2523,7 +2521,8 @@ components:
 
             It must be specified as a string in the ISO 8601 format
             (yyyy-mm-dd).
-          example: '2024-04-17'
+          $ref: '#/components/schemas/Date'
+          example: '2024-04-17T00:00:00Z'
         contractedServices:
           $ref: '#/components/schemas/ContractedService'
         subscriptionPlans:
@@ -2726,6 +2725,11 @@ components:
       example: 68050bd09890322c57842f6f
       pattern: '^[a-f0-9]{24}$'
       readOnly: true
+    Date:
+      type: string
+      format: date
+      description: Date in UTC
+      example: '2025-12-31T00:00:00Z'
   requestBodies:
     SubscriptionCompositionNovation:
       description: >-
@@ -2831,13 +2835,11 @@ components:
             type: object
             properties:
               endDate:
-                type: string
-                format: date
                 description: >-
                   The date on which the current billing period is expected to end or
-                  to be renewed. It must be specified as a string in the ISO 8601
-                  format (yyyy-mm-dd)
-                example: '2025-12-31'
+                  to be renewed
+                example: '2025-12-31T00:00:00Z'
+                $ref: '#/components/schemas/Date'
               autoRenew:
                 type: boolean
                 description: >-
@@ -2906,7 +2908,7 @@ components:
       description: The id of the user for locating the contract
       required: true
       schema:
-        $ref: '#/components/schemas/ObjectId'
+        $ref: '#/components/schemas/UserId'
     Offset:
       name: offset
       in: query
