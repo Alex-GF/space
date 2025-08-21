@@ -2308,6 +2308,8 @@ components:
         - subscriptionPlans
         - hystory
       properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
         userContact:
           $ref: '#/components/schemas/UserContact'
         billingPeriod:
@@ -2462,6 +2464,7 @@ components:
         description: >-
           The plan selected to be included within the subscription from the
           pricing of the service indicated in `contractedService`
+        minLength: 1
       example:
         zoom: ENTERPRISE
         petclinic: GOLD
@@ -2486,6 +2489,7 @@ components:
             subscription. This number must be within the range defined by the
             `subscriptionContraint` of the add-on
           example: 1
+          minimum: 0
       example:
         zoom:
           extraSeats: 2
