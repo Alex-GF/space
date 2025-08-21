@@ -2401,18 +2401,7 @@ components:
           example: true
           default: true
         renewalDays:
-          type: integer
-          description: >-
-            If `autoRenew` == true, this field is **required**.
-
-
-
-            It represents the number of days by which the current billing period
-            will be extended once it reaches its `endDate`. When this extension
-            operation is performed, the endDate is replaced by `endDate` +
-            `renewalDays`.
-          example: 365
-          default: 30
+          $ref: '#/components/schemas/RenewalDays'
     ContractedService:
       type: object
       description: >-
@@ -2730,6 +2719,18 @@ components:
       format: date
       description: Date in UTC
       example: '2025-12-31T00:00:00Z'
+    RenewalDays:
+      type: integer
+      description: >-
+            If `autoRenew` == true, this field is **required**.
+
+            It represents the number of days by which the current billing period
+            will be extended once it reaches its `endDate`. When this extension
+            operation is performed, the endDate is replaced by `endDate` +
+            `renewalDays`.
+      example: 365
+      default: 30
+      minimum: 1
   requestBodies:
     SubscriptionCompositionNovation:
       description: >-
@@ -2757,6 +2758,7 @@ components:
             type: object
             required:
               - userContact
+              - contractedServices
               - subscriptionPlans
               - subscriptionAddOns
             properties:
@@ -2774,18 +2776,7 @@ components:
                     example: true
                     default: true
                   renewalDays:
-                    type: integer
-                    description: >-
-                      If `autoRenew` == true, this field is **required**.
-
-
-
-                      It represents the number of days by which the current
-                      billing period will be extended once it reaches its
-                      `endDate`. When this extension operation is performed, the
-                      endDate is replaced by `endDate` + `renewalDays`.
-                    example: 365
-                    default: 30
+                    $ref: '#/components/schemas/RenewalDays'
               contractedServices:
                 $ref: '#/components/schemas/ContractedService'
               subscriptionPlans:
@@ -2849,18 +2840,7 @@ components:
                 example: true
                 default: true
               renewalDays:
-                type: integer
-                description: >-
-                  If `autoRenew` == true, this field is **required**.
-      
-      
-      
-                  It represents the number of days by which the current billing period
-                  will be extended once it reaches its `endDate`. When this extension
-                  operation is performed, the endDate is replaced by `endDate` +
-                  `renewalDays`.
-                example: 365
-                default: 30
+                $ref: '#/components/schemas/RenewalDays'
       required: true
   responses:
     UnprocessableEntity:
