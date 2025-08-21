@@ -2716,7 +2716,7 @@ components:
       readOnly: true
     Date:
       type: string
-      format: date
+      format: date-time
       description: Date in UTC
       example: '2025-12-31T00:00:00Z'
     RenewalDays:
