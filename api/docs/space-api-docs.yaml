@@ -2315,58 +2315,7 @@ components:
         billingPeriod:
           $ref: '#/components/schemas/BillingPeriod'
         usageLevel:
-          type: object
-          description: >-
-            Map that contains information about the current usage levels of the trackable usage limits of the contracted services. These usage limits are:
-
-
-            - All **RENEWABLE** usage limits.
-
-            - **NON_RENEWABLE** usage limits with `trackable` == true
-
-
-            Keys are service names and values are Maps containing the usage levels of each service.
-          additionalProperties:
-            type: object
-            description:  >-
-              Map that contains information about the current usage levels of the usage limits that must be tracked.
-
-              Keys are usage limit names and values contain the current state ofeach usage level and their expected resetTimestamp (if usage limit type is RENEWABLE)
-            additionalProperties:
-              type: object
-              required:
-                - consumed
-              properties:
-                resetTimestamp:
-                  type: string
-                  format: date
-                  description: >-
-                    The date on which the current consumption of the usage limit
-                    is expected to be reset, i.e. set to 0. 
-  
-  
-                    If the usage limit is **NON_RENEWABLE**, this field must not
-                    be set.
-  
-  
-                    It must be specified as a string in the ISO 8601 format
-                    (yyyy-mm-dd).
-                consumed:
-                  type: number
-                  description: >-
-                    Indicates how much quota has been consumed for this usage
-                    limit
-                  example: 5
-          example:
-            zoom:
-              maxSeats: 
-                consumed: 10
-            petclinic:
-              maxPets: 
-                consumed: 2
-              maxVisits: 
-                consumed: 5
-                resetTimeStamp: "2025-07-31T00:00:00Z"
+          $ref: '#/components/schemas/UsageLevel'
         contractedServices:
           $ref: '#/components/schemas/ContractedService'
         subscriptionPlans:
@@ -2735,6 +2684,55 @@ components:
       example: 365
       default: 30
       minimum: 1
+    UsageLevel:
+      type: object
+      description: >-
+        Map that contains information about the current usage levels of the
+        trackable usage limits of the contracted services. These usage limits are:
+
+        - All **RENEWABLE** usage limits.
+        - **NON_RENEWABLE** usage limits with `trackable` == true
+
+        Keys are service names and values are Maps containing the usage levels
+        of each service.
+      additionalProperties:
+        type: object
+        description:  >-
+          Map that contains information about the current usage levels of the
+          usage limits that must be tracked.
+
+          Keys are usage limit names and values contain the current state of each
+          usage level and their expected resetTimestamp (if usage limit type is RENEWABLE)
+        additionalProperties:
+          type: object
+          required:
+          - consumed
+          properties:
+            resetTimestamp:
+              description: >-
+                The date on which the current consumption of the usage limit
+                is expected to be reset, i.e. set to 0.
+               
+                If the usage limit is **NON_RENEWABLE**, this field must not
+                be set.
+
+                It must be specified as a string in UTC
+              $ref: '#/components/schemas/Date'
+            consumed:
+              type: number
+              description: >-
+                Indicates how much quota has been consumed for this usage limit
+              example: 5
+      example:
+        zoom:
+          maxSeats: 
+            consumed: 10
+          petclinic:
+            maxPets: 
+              consumed: 2
+            maxVisits: 
+              consumed: 5
+              resetTimeStamp: "2025-07-31T00:00:00Z"
   requestBodies:
     SubscriptionCompositionNovation:
       description: >-
