@@ -2727,12 +2727,12 @@ components:
         zoom:
           maxSeats: 
             consumed: 10
-          petclinic:
-            maxPets: 
-              consumed: 2
-            maxVisits: 
-              consumed: 5
-              resetTimeStamp: "2025-07-31T00:00:00Z"
+        petclinic:
+          maxPets: 
+            consumed: 2
+          maxVisits: 
+            consumed: 5
+            resetTimeStamp: "2025-07-31T00:00:00Z"
   requestBodies:
     SubscriptionCompositionNovation:
       description: >-
