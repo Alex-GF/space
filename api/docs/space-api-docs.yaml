@@ -2303,7 +2303,7 @@ components:
         actual state and history of a subscription contracted by an user.
       required:
         - billingPeriod
-        - usageLevel
+        - usageLevels
         - contractedServices
         - subscriptionPlans
         - hystory
@@ -2314,8 +2314,8 @@ components:
           $ref: '#/components/schemas/UserContact'
         billingPeriod:
           $ref: '#/components/schemas/BillingPeriod'
-        usageLevel:
-          $ref: '#/components/schemas/UsageLevel'
+        usageLevels:
+          $ref: '#/components/schemas/UsageLevels'
         contractedServices:
           $ref: '#/components/schemas/ContractedService'
         subscriptionPlans:
@@ -2684,7 +2684,7 @@ components:
       example: 365
       default: 30
       minimum: 1
-    UsageLevel:
+    UsageLevels:
       type: object
       description: >-
         Map that contains information about the current usage levels of the
@@ -2725,7 +2725,7 @@ components:
               example: 5
       example:
         zoom:
-          maxSeats: 
+          maxSeats:
             consumed: 10
         petclinic:
           maxPets: 
