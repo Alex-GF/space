@@ -2303,68 +2303,19 @@ components:
         actual state and history of a subscription contracted by an user.
       required:
         - billingPeriod
-        - usageLevel
+        - usageLevels
         - contractedServices
         - subscriptionPlans
         - hystory
       properties:
+        id:
+          $ref: '#/components/schemas/ObjectId'
         userContact:
           $ref: '#/components/schemas/UserContact'
         billingPeriod:
           $ref: '#/components/schemas/BillingPeriod'
-        usageLevel:
-          type: object
-          description: >-
-            Map that contains information about the current usage levels of the trackable usage limits of the contracted services. These usage limits are:
-
-
-            - All **RENEWABLE** usage limits.
-
-            - **NON_RENEWABLE** usage limits with `trackable` == true
-
-
-            Keys are service names and values are Maps containing the usage levels of each service.
-          additionalProperties:
-            type: object
-            description:  >-
-              Map that contains information about the current usage levels of the usage limits that must be tracked.
-
-              Keys are usage limit names and values contain the current state ofeach usage level and their expected resetTimestamp (if usage limit type is RENEWABLE)
-            additionalProperties:
-              type: object
-              required:
-                - consumed
-              properties:
-                resetTimestamp:
-                  type: string
-                  format: date
-                  description: >-
-                    The date on which the current consumption of the usage limit
-                    is expected to be reset, i.e. set to 0. 
-  
-  
-                    If the usage limit is **NON_RENEWABLE**, this field must not
-                    be set.
-  
-  
-                    It must be specified as a string in the ISO 8601 format
-                    (yyyy-mm-dd).
-                consumed:
-                  type: number
-                  description: >-
-                    Indicates how much quota has been consumed for this usage
-                    limit
-                  example: 5
-          example:
-            zoom:
-              maxSeats: 
-                consumed: 10
-            petclinic:
-              maxPets: 
-                consumed: 2
-              maxVisits: 
-                consumed: 5
-                resetTimeStamp: "2025-07-31"
+        usageLevels:
+          $ref: '#/components/schemas/UsageLevels'
         contractedServices:
           $ref: '#/components/schemas/ContractedService'
         subscriptionPlans:
@@ -2382,20 +2333,16 @@ components:
         - endDate
       properties:
         startDate:
-          type: string
-          format: date
           description: >-
-            The date on which the current billing period started. It must be
-            specified as a string in the ISO 8601 format (yyyy-mm-dd)
-          example: '2025-04-18'
+            The date on which the current billing period started
+          $ref: '#/components/schemas/Date'
+          example: '2025-04-18T00:00:00Z'
         endDate:
-          type: string
-          format: date
           description: >-
             The date on which the current billing period is expected to end or
-            to be renewed. It must be specified as a string in the ISO 8601
-            format (yyyy-mm-dd)
-          example: '2025-12-31'
+            to be renewed
+          example: '2025-12-31T00:00:00Z'
+          $ref: '#/components/schemas/Date'
         autoRenew:
           type: boolean
           description: >-
@@ -2405,18 +2352,7 @@ components:
           example: true
           default: true
         renewalDays:
-          type: integer
-          description: >-
-            If `autoRenew` == true, this field is **required**.
-
-
-
-            It represents the number of days by which the current billing period
-            will be extended once it reaches its `endDate`. When this extension
-            operation is performed, the endDate is replaced by `endDate` +
-            `renewalDays`.
-          example: 365
-          default: 30
+          $ref: '#/components/schemas/RenewalDays'
     ContractedService:
       type: object
       description: >-
@@ -2435,6 +2371,10 @@ components:
       example:
         zoom: "2025"
         petclinic: "2024"
+    UserId:
+      type: string
+      description: The id of the contract of the user
+      example: 01c36d29-0d6a-4b41-83e9-8c6d9310c508
     UserContact:
       type: object
       required:
@@ -2442,7 +2382,11 @@ components:
         - username
       properties:
         userId:
-          $ref: '#/components/schemas/ObjectId'
+          type: string
+          description: The id of the contract of the user
+          example: 01c36d29-0d6a-4b41-83e9-8c6d9310c508
+        username:
+          $ref: '#/components/schemas/Username'
         fistName:
           type: string
           description: The first name of the user
@@ -2455,8 +2399,6 @@ components:
           type: string
           description: The email of the user
           example: john.doe@my-domain.com
-        username:
-          $ref: '#/components/schemas/Username'
         phone:
           type: string
           description: The phone number of the user, with international code
@@ -2471,6 +2413,7 @@ components:
         description: >-
           The plan selected to be included within the subscription from the
           pricing of the service indicated in `contractedService`
+        minLength: 1
       example:
         zoom: ENTERPRISE
         petclinic: GOLD
@@ -2495,6 +2438,7 @@ components:
             subscription. This number must be within the range defined by the
             `subscriptionContraint` of the add-on
           example: 1
+          minimum: 0
       example:
         zoom:
           extraSeats: 2
@@ -2505,15 +2449,11 @@ components:
       type: object
       properties:
         startDate:
-          type: string
-          format: date
           description: >-
-            The date on which the user started using the subscription snapshot.
-            It must be specified as a string in the ISO 8601 format (yyyy-mm-dd)
-          example: '2024-04-18'
+            The date on which the user started using the subscription snapshot
+          example: '2024-04-18T00:00:00Z'
+          $ref: '#/components/schemas/Date'
         endDate:
-          type: string
-          format: date
           description: >-
             The date on which the user finished using the subscription snapshot,
             either because the contract suffered a novation, i.e. the
@@ -2523,7 +2463,8 @@ components:
 
             It must be specified as a string in the ISO 8601 format
             (yyyy-mm-dd).
-          example: '2024-04-17'
+          $ref: '#/components/schemas/Date'
+          example: '2024-04-17T00:00:00Z'
         contractedServices:
           $ref: '#/components/schemas/ContractedService'
         subscriptionPlans:
@@ -2726,6 +2667,72 @@ components:
       example: 68050bd09890322c57842f6f
       pattern: '^[a-f0-9]{24}$'
       readOnly: true
+    Date:
+      type: string
+      format: date-time
+      description: Date in UTC
+      example: '2025-12-31T00:00:00Z'
+    RenewalDays:
+      type: integer
+      description: >-
+            If `autoRenew` == true, this field is **required**.
+
+            It represents the number of days by which the current billing period
+            will be extended once it reaches its `endDate`. When this extension
+            operation is performed, the endDate is replaced by `endDate` +
+            `renewalDays`.
+      example: 365
+      default: 30
+      minimum: 1
+    UsageLevels:
+      type: object
+      description: >-
+        Map that contains information about the current usage levels of the
+        trackable usage limits of the contracted services. These usage limits are:
+
+        - All **RENEWABLE** usage limits.
+        - **NON_RENEWABLE** usage limits with `trackable` == true
+
+        Keys are service names and values are Maps containing the usage levels
+        of each service.
+      additionalProperties:
+        type: object
+        description:  >-
+          Map that contains information about the current usage levels of the
+          usage limits that must be tracked.
+
+          Keys are usage limit names and values contain the current state of each
+          usage level and their expected resetTimestamp (if usage limit type is RENEWABLE)
+        additionalProperties:
+          type: object
+          required:
+          - consumed
+          properties:
+            resetTimestamp:
+              description: >-
+                The date on which the current consumption of the usage limit
+                is expected to be reset, i.e. set to 0.
+               
+                If the usage limit is **NON_RENEWABLE**, this field must not
+                be set.
+
+                It must be specified as a string in UTC
+              $ref: '#/components/schemas/Date'
+            consumed:
+              type: number
+              description: >-
+                Indicates how much quota has been consumed for this usage limit
+              example: 5
+      example:
+        zoom:
+          maxSeats:
+            consumed: 10
+        petclinic:
+          maxPets: 
+            consumed: 2
+          maxVisits: 
+            consumed: 5
+            resetTimestamp: "2025-07-31T00:00:00Z"
   requestBodies:
     SubscriptionCompositionNovation:
       description: >-
@@ -2753,6 +2760,7 @@ components:
             type: object
             required:
               - userContact
+              - contractedServices
               - subscriptionPlans
               - subscriptionAddOns
             properties:
@@ -2770,18 +2778,7 @@ components:
                     example: true
                     default: true
                   renewalDays:
-                    type: integer
-                    description: >-
-                      If `autoRenew` == true, this field is **required**.
-
-
-
-                      It represents the number of days by which the current
-                      billing period will be extended once it reaches its
-                      `endDate`. When this extension operation is performed, the
-                      endDate is replaced by `endDate` + `renewalDays`.
-                    example: 365
-                    default: 30
+                    $ref: '#/components/schemas/RenewalDays'
               contractedServices:
                 $ref: '#/components/schemas/ContractedService'
               subscriptionPlans:
@@ -2831,13 +2828,11 @@ components:
             type: object
             properties:
               endDate:
-                type: string
-                format: date
                 description: >-
                   The date on which the current billing period is expected to end or
-                  to be renewed. It must be specified as a string in the ISO 8601
-                  format (yyyy-mm-dd)
-                example: '2025-12-31'
+                  to be renewed
+                example: '2025-12-31T00:00:00Z'
+                $ref: '#/components/schemas/Date'
               autoRenew:
                 type: boolean
                 description: >-
@@ -2847,18 +2842,7 @@ components:
                 example: true
                 default: true
               renewalDays:
-                type: integer
-                description: >-
-                  If `autoRenew` == true, this field is **required**.
-      
-      
-      
-                  It represents the number of days by which the current billing period
-                  will be extended once it reaches its `endDate`. When this extension
-                  operation is performed, the endDate is replaced by `endDate` +
-                  `renewalDays`.
-                example: 365
-                default: 30
+                $ref: '#/components/schemas/RenewalDays'
       required: true
   responses:
     UnprocessableEntity:
@@ -2906,7 +2890,7 @@ components:
       description: The id of the user for locating the contract
       required: true
       schema:
-        $ref: '#/components/schemas/ObjectId'
+        $ref: '#/components/schemas/UserId'
     Offset:
       name: offset
       in: query
