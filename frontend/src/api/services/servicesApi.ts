@@ -96,7 +96,26 @@ export async function changePricingAvailability(
     });
 }
 
-export async function createService(apiKey: string, iPricing: File): Promise<Service> {
+export async function createService(apiKey: string, iPricing: File | string): Promise<Service> {
+  // If a File is provided, send multipart/form-data; if a string (URL) is provided, send JSON payload
+  if (typeof iPricing === 'string') {
+    return axios
+      .post(
+        '/services',
+        { pricing: iPricing },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+          },
+        }
+      )
+      .then(async response => response.data as Service)
+      .catch(error => {
+        throw new Error('Failed to create service. Error: ' + (error.response?.data?.error || error.message));
+      });
+  }
+
   const formData = new FormData();
   formData.append('pricing', iPricing);
 
@@ -107,17 +126,31 @@ export async function createService(apiKey: string, iPricing: File): Promise<Ser
         'x-api-key': apiKey,
       },
     })
-    .then(async response => {
-      return response.data as Service;
-    })
+    .then(async response => response.data as Service)
     .catch(error => {
-      throw new Error(
-        'Failed to create service. Error: ' + (error.response?.data?.error || error.message)
-      );
+      throw new Error('Failed to create service. Error: ' + (error.response?.data?.error || error.message));
     });
 }
 
-export async function addPricingVersion(apiKey: string, serviceName: string, iPricing: File): Promise<Service> {
+export async function addPricingVersion(apiKey: string, serviceName: string, iPricing: File | string): Promise<Service> {
+  if (typeof iPricing === 'string') {
+    return axios
+      .post(
+        `/services/${serviceName}/pricings`,
+        { pricing: iPricing },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+          },
+        }
+      )
+      .then(response => response.data as Service)
+      .catch(error => {
+        throw new Error('Failed to create pricing version. Error: ' + (error.response?.data?.error || error.message));
+      });
+  }
+
   const formData = new FormData();
   formData.append('pricing', iPricing);
 
@@ -128,13 +161,9 @@ export async function addPricingVersion(apiKey: string, serviceName: string, iPr
         'x-api-key': apiKey,
       },
     })
-    .then(async response => {
-      return response.data as Service;
-    })
+    .then(async response => response.data as Service)
     .catch(error => {
-      throw new Error(
-        'Failed to create service. Error: ' + (error.response?.data?.error || error.message)
-      );
+      throw new Error('Failed to create pricing version. Error: ' + (error.response?.data?.error || error.message));
     });
 }
 
