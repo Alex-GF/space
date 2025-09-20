@@ -370,8 +370,7 @@ paths:
                   type: string
                   format: binary
                   description: >
-                    The pricing configuration file in YAML format (.yaml or
-                    .yml)
+                    Either a pricing configuration file in YAML format (.yaml or .yml), or a URL pointing to the pricing in a repository such as [SPHERE](https://sphere.score.us.es)
         required: true
       responses:
         '200':
@@ -596,8 +595,7 @@ paths:
                   type: string
                   format: binary
                   description: >-
-                    The pricing configuration file in YAML format (.yaml or
-                    .yml)
+                    Either a pricing configuration file in YAML format (.yaml or .yml), or a URL pointing to the pricing in a repository such as [SPHERE](https://sphere.score.us.es)
         required: true
       responses:
         '200':
