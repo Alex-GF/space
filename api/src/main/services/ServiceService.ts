@@ -19,7 +19,6 @@ import { generateUsageLevels } from '../utils/contracts/helpers';
 import { escapeVersion } from '../utils/helpers';
 import { resetEscapeVersionInService } from '../utils/services/helpers';
 import CacheService from './CacheService';
-// import CacheService from "./CacheService";
 
 class ServiceService {
   private readonly serviceRepository: ServiceRepository;
@@ -91,8 +90,29 @@ class ServiceService {
 
     const remotePricings = [];
 
-    for (const version of versionsToRetrieveRemotely) {
-      remotePricings.push(await this._getPricingFromUrl(pricingsToReturn[version].url));
+    // Fetch remote pricings in parallel with a small concurrency limit and using cache
+    const concurrency = 10;
+    for (let i = 0; i < versionsToRetrieveRemotely.length; i += concurrency) {
+      const batch = versionsToRetrieveRemotely.slice(i, i + concurrency);
+      const batchResults = await Promise.all(
+        batch.map(async (version) => {
+          const url = pricingsToReturn[version].url;
+          // Try cache first
+          let pricing = await this.cacheService.get(`pricing.url.${url}`);
+          if (!pricing) {
+            pricing = await this._getPricingFromUrl(url);
+            try {
+              await this.cacheService.set(`pricing.url.${url}`, pricing, 3600, true);
+            } catch (err) {
+              // Don't fail the pricing retrieval if cache set fails. Log for debugging.
+              // eslint-disable-next-line no-console
+              console.debug('Cache set failed for pricing.url.' + url, err);
+            }
+          }
+          return pricing;
+        })
+      );
+      remotePricings.push(...batchResults);
     }
 
     return (locallySavedPricings as unknown as ExpectedPricingType[]).concat(remotePricings);
@@ -639,7 +659,23 @@ class ServiceService {
 
   async _getPricingFromRemoteUrl(url: string) {
     const agent = new https.Agent({ rejectUnauthorized: false });
-    const response = await fetch(url, { agent });
+    // Abort fetch if it takes longer than timeoutMs
+    const timeoutMs = 5000;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response;
+    try {
+      response = await fetch(url, { agent, signal: controller.signal });
+    } catch (err) {
+      if ((err as any).name === 'AbortError') {
+        throw new Error(`Timeout fetching pricing from URL: ${url}`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(id);
+    }
+
     if (!response.ok) {
       throw new Error(`Failed to fetch pricing from URL: ${url}, status: ${response.status}`);
     }

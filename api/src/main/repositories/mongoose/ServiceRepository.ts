@@ -28,8 +28,8 @@ class ServiceRepository extends RepositoryBase {
     return services.map((service) => toPlainObject<LeanService>(service.toJSON()));
   }
 
-  async findAllNoQueries(disabled = false): Promise<LeanService[] | null> {
-    const services = await ServiceMongoose.find({disabled: disabled});
+  async findAllNoQueries(disabled = false, projection: any = { name: 1, activePricings: 1, archivedPricings: 1 }): Promise<LeanService[] | null> {
+    const services = await ServiceMongoose.find({ disabled: disabled }).select(projection);
 
     if (!services || Array.isArray(services) && services.length === 0) {
       return null;
