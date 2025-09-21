@@ -97,13 +97,13 @@ export default function FileOrUrlInput({
       </AnimatePresence>
 
       <div className="mt-3">
-        <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Or provide URL</label>
+        <label className="block text-xs font-semibold text-indigo-700 dark:text-white mb-1">Or provide URL</label>
         <input
           type="url"
           placeholder={placeholder}
           value={url}
           onChange={e => onUrlChange(e.target.value)}
-          className="w-full rounded px-3 py-2 border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-sm"
+          className="w-full rounded px-3 py-2 border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-sm text-indigo-700 dark:text-indigo-200"
         />
         {error && <div className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</div>}
       </div>
