@@ -1,5 +1,7 @@
 import axios from "@/lib/axios";
 
+const DEFAULT_TIMEOUT = 5000;
+
 export async function getUsers(apiKey: string): Promise<Array<{ username: string; apiKey: string; role: 'ADMIN' | 'MANAGER' | 'EVALUATOR' }>> {
   return axios
     .get('/users', {
@@ -7,6 +9,7 @@ export async function getUsers(apiKey: string): Promise<Array<{ username: string
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(response => response.data)
     .catch(error => {
@@ -26,6 +29,7 @@ export async function updateUsername(apiKey: string, oldUsername: string, newUse
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        timeout: DEFAULT_TIMEOUT,
       }
     )
     .then(response => response.data)
@@ -46,6 +50,7 @@ export async function changeUserRole(apiKey: string, username: string, newRole: 
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        timeout: DEFAULT_TIMEOUT,
       }
     )
     .then(response => response.data)
@@ -66,6 +71,7 @@ export async function changeUserPassword(apiKey: string, username: string, newPa
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        timeout: DEFAULT_TIMEOUT,
       }
     )
     .then(response => response.data)
@@ -83,6 +89,7 @@ export async function deleteUser(apiKey: string, username: string) {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(response => response.data)
     .catch(error => {
@@ -99,6 +106,7 @@ export async function createUser(apiKey: string, user: { username: string; passw
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(response => response.data)
     .catch(error => {

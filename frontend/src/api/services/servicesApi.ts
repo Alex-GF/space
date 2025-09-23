@@ -2,6 +2,8 @@ import axios from '@/lib/axios';
 import type { Pricing, RetrievedService, Service } from '@/types/Services';
 import { isAfter } from 'date-fns';
 
+const DEFAULT_TIMEOUT = 5000;
+
 export async function getServices(
   apiKey: string,
   filters: Record<string, boolean | number | string> = {}
@@ -13,6 +15,7 @@ export async function getServices(
         'x-api-key': apiKey,
       },
       params: filters,
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(async response => {
       return await Promise.all(
@@ -38,6 +41,7 @@ export async function getPricingsFromService(
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(response => {
       return response.data;
@@ -82,6 +86,7 @@ export async function changePricingAvailability(
           'Content-Type': 'application/json',
           'x-api-key': apiKey,
         },
+        timeout: DEFAULT_TIMEOUT,
       }
     )
     .then(response => {
@@ -108,6 +113,7 @@ export async function createService(apiKey: string, iPricing: File | string): Pr
             'Content-Type': 'application/json',
             'x-api-key': apiKey,
           },
+          timeout: DEFAULT_TIMEOUT,
         }
       )
       .then(async response => response.data as Service)
@@ -125,6 +131,7 @@ export async function createService(apiKey: string, iPricing: File | string): Pr
         'Content-Type': 'multipart/form-data',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(async response => response.data as Service)
     .catch(error => {
@@ -143,6 +150,7 @@ export async function addPricingVersion(apiKey: string, serviceName: string, iPr
             'Content-Type': 'application/json',
             'x-api-key': apiKey,
           },
+          timeout: DEFAULT_TIMEOUT,
         }
       )
       .then(response => response.data as Service)
@@ -160,6 +168,7 @@ export async function addPricingVersion(apiKey: string, serviceName: string, iPr
         'Content-Type': 'multipart/form-data',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then(async response => response.data as Service)
     .catch(error => {
@@ -174,6 +183,7 @@ export async function disableService(apiKey: string, serviceName: string): Promi
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then((response) => {
       return response.status === 204;
@@ -194,6 +204,7 @@ export async function deletePricingVersion(apiKey: string, serviceName: string, 
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
       },
+      timeout: DEFAULT_TIMEOUT,
     })
     .then((response) => {
       return response.status === 204;
