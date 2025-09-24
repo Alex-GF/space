@@ -312,6 +312,42 @@ describe('Contract API Test Suite', function () {
       expect(response.body.error).toBe(`Invalid contract: Pricing version invalid-version for service ${existingService} not found`);
     });
 
+    it('Should return 400 given a contract with a non-existent plan for a contracted service', async function () {
+      const {contract: contractToCreate} = await generateContractAndService(undefined, app);
+
+      const serviceName = Object.keys(contractToCreate.contractedServices)[0];
+      // Set an invalid plan name
+      contractToCreate.subscriptionPlans[serviceName] = 'NON_EXISTENT_PLAN';
+
+      const response = await request(app)
+        .post(`${baseUrl}/contracts`)
+        .set('x-api-key', adminApiKey)
+        .send(contractToCreate);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.error).toBeDefined();
+      expect(String(response.body.error)).toContain('Invalid subscription');
+    });
+
+    it('Should return 400 given a contract with a non-existent add-on for a contracted service', async function () {
+      const {contract: contractToCreate} = await generateContractAndService(undefined, app);
+
+      const serviceName = Object.keys(contractToCreate.contractedServices)[0];
+      // Inject an invalid add-on name
+      contractToCreate.subscriptionAddOns[serviceName] = { 'non_existent_addon': 1 };
+
+      const response = await request(app)
+        .post(`${baseUrl}/contracts`)
+        .set('x-api-key', adminApiKey)
+        .send(contractToCreate);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toBeDefined();
+      expect(response.body.error).toBeDefined();
+      expect(String(response.body.error)).toContain('Invalid subscription');
+    });
+
     it('Should return 400 when creating a contract for a userId that already has a contract', async function () {
       // Create initial contract
       const {contract: contractToCreate} = await generateContractAndService(undefined, app);
