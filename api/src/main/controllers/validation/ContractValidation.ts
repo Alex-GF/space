@@ -15,7 +15,9 @@ const create = [
     .exists({ checkNull: true })
     .withMessage('The userContact.userId field is required')
     .isString()
-    .withMessage('The userContact.userId field must be a string'),
+    .withMessage('The userContact.userId field must be a string')
+    .notEmpty()
+    .withMessage('The userContact.userId field cannot be empty'),
   check('userContact.username')
     .exists({ checkNull: true })
     .withMessage('The userContact.username field is required')

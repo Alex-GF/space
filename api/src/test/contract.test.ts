@@ -263,6 +263,24 @@ describe('Contract API Test Suite', function () {
       );
     });
 
+    it('Should return 422 when userContact.userId is an empty string', async function () {
+      const {contract: contractToCreate} = await generateContractAndService(undefined, app);
+
+      // Force empty userId
+      contractToCreate.userContact.userId = '';
+
+      const response = await request(app)
+        .post(`${baseUrl}/contracts`)
+        .set('x-api-key', adminApiKey)
+        .send(contractToCreate);
+
+      expect(response.status).toBe(422);
+      expect(response.body).toBeDefined();
+      expect(response.body.error).toBeDefined();
+      // Validation message should mention userContact.userId or cannot be empty
+      expect(response.body.error.toLowerCase()).toContain('usercontact.userid');
+    });
+
     it('Should return 400 given a contract with unexistent service', async function () {
       const {contract: contractToCreate} = await generateContractAndService(undefined, app);
 
