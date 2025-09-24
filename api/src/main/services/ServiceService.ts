@@ -247,13 +247,8 @@ class ServiceService {
     if (validationErrors.length > 0) {
       throw new Error(`Validation errors: ${validationErrors.join(', ')}`);
     }
-
-    // Step 2: Save the pricing data to the database
-    const savedPricing = await this.pricingRepository.create(pricingData);
-    if (!savedPricing) {
-      throw new Error(`Pricing ${uploadedPricing.version} not saved`);
-    }
-    // Step 3:
+    
+    // Step 2:
     // - If the service does not exist (enabled), creates it
     // - If an enabled service exists, updates it with the new pricing
     // - If a disabled service exists with the same name, re-enable it, make the
@@ -266,6 +261,13 @@ class ServiceService {
 
       if (existingEnabled) {
         throw new Error(`Invalid request: Service ${uploadedPricing.saasName} already exists`);
+      }
+
+      // Step 3: Create the service as it does not exist and add the pricing
+      const savedPricing = await this.pricingRepository.create(pricingData);
+  
+      if (!savedPricing) {
+        throw new Error(`Pricing ${uploadedPricing.version} not saved`);
       }
 
       if (existingDisabled) {
@@ -348,6 +350,13 @@ class ServiceService {
         updatePayload[`archivedPricings.${formattedPricingVersion}`] = undefined;
       }
 
+      // Step 3: Create the service as it does not exist and add the pricing
+      const savedPricing = await this.pricingRepository.create(pricingData);
+  
+      if (!savedPricing) {
+        throw new Error(`Pricing ${uploadedPricing.version} not saved`);
+      }
+
       // If the service is disabled, re-enable it and move previous active/archived to archived
       if ((service as any).disabled) {
         const newArchived: Record<string, any> = { ...(service.archivedPricings || {}) };
@@ -382,6 +391,13 @@ class ServiceService {
         };
         updatePayload.archivedPricings = newArchived;
       } else {
+        // Step 3: Create the service as it does not exist and add the pricing
+        const savedPricing = await this.pricingRepository.create(pricingData);
+    
+        if (!savedPricing) {
+          throw new Error(`Pricing ${uploadedPricing.version} not saved`);
+        }
+        
         // Normal update: keep existing active pricings and just add the new one
         updatePayload[`activePricings.${formattedPricingVersion}`] = {
           id: savedPricing.id,
