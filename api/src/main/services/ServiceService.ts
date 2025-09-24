@@ -254,29 +254,141 @@ class ServiceService {
       throw new Error(`Pricing ${uploadedPricing.version} not saved`);
     }
     // Step 3:
-    // - If the service does not exist, creates it
-    // - If the service exists, updates it with the new pricing
+    // - If the service does not exist (enabled), creates it
+    // - If an enabled service exists, updates it with the new pricing
+    // - If a disabled service exists with the same name, re-enable it, make the
+    //   uploaded pricing the only active pricing and move all previous active/archived
+    //   entries into archivedPricings (renaming collisions by appending timestamp)
     if (!service) {
-      const serviceData = {
-        name: uploadedPricing.saasName,
-        activePricings: {
+      // Check if an enabled service exists
+      const existingEnabled = await this.serviceRepository.findByName(uploadedPricing.saasName, false);
+      const existingDisabled = await this.serviceRepository.findByName(uploadedPricing.saasName, true);
+
+      if (existingEnabled) {
+        throw new Error(`Invalid request: Service ${uploadedPricing.saasName} already exists`);
+      }
+
+      if (existingDisabled) {
+        // Re-enable flow: archive existing active pricings and archived pricings
+        const newArchived: Record<string, any> = { ...(existingDisabled.archivedPricings || {}) };
+
+        // rename any archived entry that collides with the new version
+        if (newArchived[formattedPricingVersion]) {
+          const newKey = `${formattedPricingVersion}_${Date.now()}`;
+          newArchived[newKey] = newArchived[formattedPricingVersion];
+          delete newArchived[formattedPricingVersion];
+        }
+
+        // move previous active pricings into archived (renaming collisions)
+        if (existingDisabled.activePricings) {
+          for (const key of Object.keys(existingDisabled.activePricings)) {
+            if (key === formattedPricingVersion) {
+              const newKey = `${key}_${Date.now()}`;
+              newArchived[newKey] = existingDisabled.activePricings[key];
+            } else {
+              // if archived already has this key, append timestamp
+              if (newArchived[key]) {
+                const newKey = `${key}_${Date.now()}`;
+                newArchived[newKey] = existingDisabled.activePricings[key];
+              } else {
+                newArchived[key] = existingDisabled.activePricings[key];
+              }
+            }
+          }
+        }
+
+        const updateData: any = {
+          disabled: false,
+          activePricings: {
+            [formattedPricingVersion]: {
+              id: savedPricing.id,
+            },
+          },
+          archivedPricings: newArchived,
+        };
+
+        const updated = await this.serviceRepository.update(existingDisabled.name, updateData);
+        if (!updated) {
+          throw new Error(`Service ${uploadedPricing.saasName} not updated`);
+        }
+
+        service = updated;
+      } else {
+        const serviceData = {
+          name: uploadedPricing.saasName,
+          activePricings: {
+            [formattedPricingVersion]: {
+              id: savedPricing.id,
+            },
+          },
+        };
+
+        try {
+          service = await this.serviceRepository.create(serviceData);
+        } catch (err) {
+          throw new Error(`Service ${uploadedPricing.saasName} not saved: ${(err as Error).message}`);
+        }
+      }
+    } else {
+      // service exists (serviceName provided)
+      // If pricing already exists as ACTIVE, we disallow
+      if (service.activePricings && service.activePricings[formattedPricingVersion]) {
+        throw new Error(
+          `Pricing version ${uploadedPricing.version} already exists for service ${serviceName}`
+        );
+      }
+
+      // If pricing exists in archived, rename archived entry to free the key
+      const archivedExists = service.archivedPricings && service.archivedPricings[formattedPricingVersion];
+      const updatePayload: any = {};
+
+      if (archivedExists) {
+        const newKey = `${formattedPricingVersion}_${Date.now()}`;
+        updatePayload[`archivedPricings.${newKey}`] = service.archivedPricings[formattedPricingVersion];
+        updatePayload[`archivedPricings.${formattedPricingVersion}`] = undefined;
+      }
+
+      // If the service is disabled, re-enable it and move previous active/archived to archived
+      if ((service as any).disabled) {
+        const newArchived: Record<string, any> = { ...(service.archivedPricings || {}) };
+
+        if (newArchived[formattedPricingVersion]) {
+          const newKey = `${formattedPricingVersion}_${Date.now()}`;
+          newArchived[newKey] = newArchived[formattedPricingVersion];
+          delete newArchived[formattedPricingVersion];
+        }
+
+        if (service.activePricings) {
+          for (const key of Object.keys(service.activePricings)) {
+            if (key === formattedPricingVersion) {
+              const newKey = `${key}_${Date.now()}`;
+              newArchived[newKey] = service.activePricings[key];
+            } else {
+              if (newArchived[key]) {
+                const newKey = `${key}_${Date.now()}`;
+                newArchived[newKey] = service.activePricings[key];
+              } else {
+                newArchived[key] = service.activePricings[key];
+              }
+            }
+          }
+        }
+
+        updatePayload.disabled = false;
+        updatePayload.activePricings = {
           [formattedPricingVersion]: {
             id: savedPricing.id,
           },
-        },
-      };
-
-      try {
-        service = await this.serviceRepository.create(serviceData);
-      } catch (err) {
-        throw new Error(`Service ${uploadedPricing.saasName} not saved: ${(err as Error).message}`);
-      }
-    } else {
-      const updatedService = await this.serviceRepository.update(service.name, {
-        [`activePricings.${formattedPricingVersion}`]: {
+        };
+        updatePayload.archivedPricings = newArchived;
+      } else {
+        // Normal update: keep existing active pricings and just add the new one
+        updatePayload[`activePricings.${formattedPricingVersion}`] = {
           id: savedPricing.id,
-        },
-      });
+        };
+      }
+
+      const updatedService = await this.serviceRepository.update(service.name, updatePayload);
 
       service = updatedService;
     }
@@ -314,7 +426,57 @@ class ServiceService {
     const formattedPricingVersion = escapeVersion(uploadedPricing.version);
 
     if (!serviceName) {
-      // Create a new service
+      // Create a new service or re-enable a disabled one
+      const existingEnabled = await this.serviceRepository.findByName(uploadedPricing.saasName, false);
+      const existingDisabled = await this.serviceRepository.findByName(uploadedPricing.saasName, true);
+
+      if (existingEnabled) {
+        throw new Error(`Invalid request: Service ${uploadedPricing.saasName} already exists`);
+      }
+
+      if (existingDisabled) {
+        const newArchived: Record<string, any> = { ...(existingDisabled.archivedPricings || {}) };
+
+        if (newArchived[formattedPricingVersion]) {
+          const newKey = `${formattedPricingVersion}_${Date.now()}`;
+          newArchived[newKey] = newArchived[formattedPricingVersion];
+          delete newArchived[formattedPricingVersion];
+        }
+
+        if (existingDisabled.activePricings) {
+          for (const key of Object.keys(existingDisabled.activePricings)) {
+            if (key === formattedPricingVersion) {
+              const newKey = `${key}_${Date.now()}`;
+              newArchived[newKey] = existingDisabled.activePricings[key];
+            } else {
+              if (newArchived[key]) {
+                const newKey = `${key}_${Date.now()}`;
+                newArchived[newKey] = existingDisabled.activePricings[key];
+              } else {
+                newArchived[key] = existingDisabled.activePricings[key];
+              }
+            }
+          }
+        }
+
+        const updateData: any = {
+          disabled: false,
+          activePricings: {
+            [formattedPricingVersion]: {
+              url: pricingUrl,
+            },
+          },
+          archivedPricings: newArchived,
+        };
+
+        const updated = await this.serviceRepository.update(existingDisabled.name, updateData);
+        if (!updated) {
+          throw new Error(`Service ${uploadedPricing.saasName} not updated`);
+        }
+
+        return updated;
+      }
+
       const serviceData = {
         name: uploadedPricing.saasName,
         activePricings: {
@@ -323,12 +485,6 @@ class ServiceService {
           },
         },
       };
-
-      const existingService = await this.serviceRepository.findByName(uploadedPricing.saasName);
-
-      if (existingService) {
-        throw new Error(`Invalid request: Service ${uploadedPricing.saasName} already exists`);
-      }
 
       const service = await this.serviceRepository.create(serviceData);
       return service;
@@ -339,25 +495,65 @@ class ServiceService {
         throw new Error(`Service ${serviceName} not found`);
       }
 
-      if (
-        (service.activePricings && service.activePricings[formattedPricingVersion]) ||
-        (service.archivedPricings && service.archivedPricings[formattedPricingVersion])
-      ) {
+      // If already active, reject
+      if (service.activePricings && service.activePricings[formattedPricingVersion]) {
         throw new Error(
           `Pricing version ${uploadedPricing.version} already exists for service ${serviceName}`
         );
       }
 
-      const updatedService = await this.serviceRepository.update(service.name, {
-        [`activePricings.${formattedPricingVersion}`]: {
+      const updatePayload: any = {};
+
+      // If exists in archived, rename archived entry first
+      if (service.archivedPricings && service.archivedPricings[formattedPricingVersion]) {
+        const newKey = `${formattedPricingVersion}_${Date.now()}`;
+        updatePayload[`archivedPricings.${newKey}`] = service.archivedPricings[formattedPricingVersion];
+        updatePayload[`archivedPricings.${formattedPricingVersion}`] = undefined;
+      }
+
+      // If disabled, re-enable and move previous active into archived
+      if ((service as any).disabled) {
+        const newArchived: Record<string, any> = { ...(service.archivedPricings || {}) };
+
+        if (newArchived[formattedPricingVersion]) {
+          const newKey = `${formattedPricingVersion}_${Date.now()}`;
+          newArchived[newKey] = newArchived[formattedPricingVersion];
+          delete newArchived[formattedPricingVersion];
+        }
+
+        if (service.activePricings) {
+          for (const key of Object.keys(service.activePricings)) {
+            if (key === formattedPricingVersion) {
+              const newKey = `${key}_${Date.now()}`;
+              newArchived[newKey] = service.activePricings[key];
+            } else {
+              if (newArchived[key]) {
+                const newKey = `${key}_${Date.now()}`;
+                newArchived[newKey] = service.activePricings[key];
+              } else {
+                newArchived[key] = service.activePricings[key];
+              }
+            }
+          }
+        }
+
+        updatePayload.disabled = false;
+        updatePayload.activePricings = {
+          [formattedPricingVersion]: {
+            url: pricingUrl,
+          },
+        };
+        updatePayload.archivedPricings = newArchived;
+      } else {
+        updatePayload[`activePricings.${formattedPricingVersion}`] = {
           url: pricingUrl,
-        },
-      });
+        };
+      }
+
+      const updatedService = await this.serviceRepository.update(service.name, updatePayload);
 
       if (!updatedService) {
-        throw new Error(
-          `Service ${serviceName} not updated with pricing ${uploadedPricing.version}`
-        );
+        throw new Error(`Service ${serviceName} not updated with pricing ${uploadedPricing.version}`);
       }
 
       resetEscapeVersionInService(updatedService);
