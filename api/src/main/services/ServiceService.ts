@@ -496,6 +496,10 @@ class ServiceService {
       };
 
       const service = await this.serviceRepository.create(serviceData);
+      
+      // Emit pricing creation event
+      this.eventService.emitPricingCreatedMessage(service.name, uploadedPricing.version);
+      
       return service;
     } else {
       // Update an existing service
@@ -566,7 +570,10 @@ class ServiceService {
       }
 
       resetEscapeVersionInService(updatedService);
-
+      
+      // Emit pricing creation event
+      this.eventService.emitPricingCreatedMessage(service.name, uploadedPricing.version);
+      
       return updatedService;
     }
   }
