@@ -82,6 +82,34 @@ describe('Services API Test Suite', function () {
       expect((Object.values(response.body.activePricings)[0] as any).url).toBeDefined();
       expect(response.body.archivedPricings).toBeUndefined();
     });
+
+    it('Should return 4XX when creating a service with the same name as an existing one', async function () {
+      // create initial service
+      const pricingFilePath = await getRandomPricingFile(new Date().getTime().toString());
+      const first = await request(app)
+        .post(`${baseUrl}/services`)
+        .set('x-api-key', adminApiKey)
+        .attach('pricing', pricingFilePath);
+
+      expect(first.status).toEqual(201);
+
+      // attempt to create another service with the same pricing (and thus same saasName)
+      const second = await request(app)
+        .post(`${baseUrl}/services`)
+        .set('x-api-key', adminApiKey)
+        .attach('pricing', pricingFilePath);
+
+      // It must be a 4xx error (client error), not 5xx
+      expect(second.status).toBeGreaterThanOrEqual(400);
+      expect(second.status).toBeLessThan(500);
+
+      expect(second.body).toBeDefined();
+      expect(second.body.error).toBeDefined();
+      const errMsg = String(second.body.error).toLowerCase();
+      expect(errMsg.length).toBeGreaterThan(0);
+      // Error message should mention existence/duplication
+      expect(['exists', 'already', 'duplicate'].some(k => errMsg.includes(k))).toBeTruthy();
+    });
   });
 
   describe('GET /services/{serviceName}', function () {

@@ -28,8 +28,8 @@ class ServiceRepository extends RepositoryBase {
     return services.map((service) => toPlainObject<LeanService>(service.toJSON()));
   }
 
-  async findAllNoQueries(disabled = false): Promise<LeanService[] | null> {
-    const services = await ServiceMongoose.find({disabled: disabled});
+  async findAllNoQueries(disabled = false, projection: any = { name: 1, activePricings: 1, archivedPricings: 1 }): Promise<LeanService[] | null> {
+    const services = await ServiceMongoose.find({ disabled: disabled }).select(projection);
 
     if (!services || Array.isArray(services) && services.length === 0) {
       return null;
@@ -90,9 +90,30 @@ class ServiceRepository extends RepositoryBase {
       return null;
     }
 
-    service.set({ disabled: true });
+    // Normalize archived and active pricings to plain objects to avoid Mongoose Map cast issues
+    const existingArchived = service.archivedPricings ? JSON.parse(JSON.stringify(service.archivedPricings)) : {};
+    const existingActive = service.activePricings ? JSON.parse(JSON.stringify(service.activePricings)) : {};
+
+    const mergedArchived: Record<string, any> = { ...existingArchived };
+
+    // Move active pricings into archived, renaming collisions
+    for (const key of Object.keys(existingActive)) {
+      if (mergedArchived[key]) {
+        const newKey = `${key}_${Date.now()}`;
+        mergedArchived[newKey] = existingActive[key];
+      } else {
+        mergedArchived[key] = existingActive[key];
+      }
+    }
+
+    service.set({
+      disabled: true,
+      activePricings: {},
+      archivedPricings: mergedArchived,
+    });
+
     await service.save();
-    
+
     return toPlainObject<LeanService>(service.toJSON());
   }
 

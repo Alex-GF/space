@@ -228,11 +228,16 @@ class FeatureEvaluationService {
   async _getPricingsByContract(contract: LeanContract): Promise<Record<string, LeanPricing>> {
     const pricingsToReturn: Record<string, LeanPricing> = {};
 
-    for (const serviceName in contract.contractedServices) {
+    // Parallelize pricing retrieval per service (showPricing may fetch remote URLs)
+    const serviceNames = Object.keys(contract.contractedServices);
+    const pricingPromises = serviceNames.map(async (serviceName) => {
       const pricingVersion = escapeVersion(contract.contractedServices[serviceName]);
-
       const pricing = await this.serviceService.showPricing(serviceName, pricingVersion);
+      return { serviceName, pricing };
+    });
 
+    const pricingResults = await Promise.all(pricingPromises);
+    for (const { serviceName, pricing } of pricingResults) {
       pricingsToReturn[serviceName] = pricing;
     }
 
@@ -322,8 +327,8 @@ class FeatureEvaluationService {
   ): Promise<Record<string, Record<string, LeanPricing>>> {
     const pricingsToReturn: Record<string, Record<string, LeanPricing>> = {};
 
-    // Step 1: Return all services
-    const services = await this.serviceRepository.findAllNoQueries();
+  // Step 1: Return all services (only fields required to build pricings map)
+  const services = await this.serviceRepository.findAllNoQueries(false, { name: 1, activePricings: 1, archivedPricings: 1 });
 
     if (!services) {
       return {};
@@ -374,11 +379,36 @@ class FeatureEvaluationService {
         pricingsToReturn[serviceName][pricing.version] = pricing;
       }
 
-      for (const version of pricingsWithUrlToCheck) {
-        const pricing = await this.serviceService._getPricingFromUrl(
-          (service.activePricings[version] ?? service.archivedPricings[version]).url
+      // Fetch all remote pricings for this service in parallel with limited concurrency
+      const urlVersions = pricingsWithUrlToCheck.map((version) => ({
+        version,
+        url: (service.activePricings[version] ?? service.archivedPricings[version]).url,
+      }));
+
+      const concurrency = 8;
+      for (let j = 0; j < urlVersions.length; j += concurrency) {
+        const batch = urlVersions.slice(j, j + concurrency);
+        const batchResults = await Promise.all(
+          batch.map(async ({ version, url }) => {
+            // Try cache first
+            let pricing = await this.cacheService.get(`pricing.url.${url}`);
+            if (!pricing) {
+              pricing = await this.serviceService._getPricingFromUrl(url);
+              try {
+                await this.cacheService.set(`pricing.url.${url}`, pricing, 3600, true);
+              } catch (err) {
+                // Don't fail the pricing retrieval if cache set fails. Log for debugging.
+                // eslint-disable-next-line no-console
+                console.debug('Cache set failed for pricing.url.' + url, err);
+              }
+            }
+            return { version, pricing };
+          })
         );
-        pricingsToReturn[serviceName][version] = pricing;
+
+        for (const { version, pricing } of batchResults) {
+          pricingsToReturn[serviceName][version] = pricing;
+        }
       }
     }
 

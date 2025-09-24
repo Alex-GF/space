@@ -15,7 +15,9 @@ const create = [
     .exists({ checkNull: true })
     .withMessage('The userContact.userId field is required')
     .isString()
-    .withMessage('The userContact.userId field must be a string'),
+    .withMessage('The userContact.userId field must be a string')
+    .notEmpty()
+    .withMessage('The userContact.userId field cannot be empty'),
   check('userContact.username')
     .exists({ checkNull: true })
     .withMessage('The userContact.username field is required')
@@ -315,6 +317,11 @@ function _validateAddOns(
   }
 
   for (const addOnName in selectedAddOns) {
+
+    if (!pricing.addOns![addOnName]){
+      throw new Error(`Add-on ${addOnName} declared in the subscription not found in pricing version ${pricing.version}`);
+    }
+
     _validateAddOnAvailability(addOnName, selectedPlan, pricing);
     _validateDependentAddOns(addOnName, selectedAddOns, pricing);
     _validateExcludedAddOns(addOnName, selectedAddOns, pricing);
@@ -342,6 +349,7 @@ function _validateDependentAddOns(
   selectedAddOns: Record<string, number>,
   pricing: LeanPricing
 ): void {
+
   const dependentAddOns = pricing.addOns![addOnName].dependsOn ?? [];
   if (!dependentAddOns.every(dependentAddOn => selectedAddOns.hasOwnProperty(dependentAddOn))) {
     throw new Error(
