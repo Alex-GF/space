@@ -293,6 +293,29 @@ describe('Contract API Test Suite', function () {
       expect(response.body).toBeDefined();
       expect(response.body.error).toBe(`Invalid contract: Pricing version invalid-version for service ${existingService} not found`);
     });
+
+    it('Should return 400 when creating a contract for a userId that already has a contract', async function () {
+      // Create initial contract
+      const {contract: contractToCreate} = await generateContractAndService(undefined, app);
+
+      const firstResponse = await request(app)
+        .post(`${baseUrl}/contracts`)
+        .set('x-api-key', adminApiKey)
+        .send(contractToCreate);
+
+      expect(firstResponse.status).toBe(201);
+
+      // Try to create another contract with the same userId
+      const secondResponse = await request(app)
+        .post(`${baseUrl}/contracts`)
+        .set('x-api-key', adminApiKey)
+        .send(contractToCreate);
+
+      expect(secondResponse.status).toBe(400);
+      expect(secondResponse.body).toBeDefined();
+      expect(secondResponse.body.error).toBeDefined();
+      expect(secondResponse.body.error.toLowerCase()).toContain('already exists');
+    });
   });
 
   describe('GET /contracts/:userId', function () {

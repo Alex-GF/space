@@ -65,7 +65,21 @@ class ContractService {
   }
 
   async create(contractData: ContractToCreate): Promise<LeanContract> {
-    
+    // Prevent creating more than one contract per userId
+    if (!contractData || !contractData.userContact || !contractData.userContact.userId) {
+      throw new Error('Invalid request: Missing userContact.userId');
+    }
+
+    const existingContract = await this.contractRepository.findByUserId(
+      contractData.userContact.userId
+    );
+
+    if (existingContract) {
+      throw new Error(
+        `Invalid request: Contract for user ${contractData.userContact.userId} already exists`
+      );
+    }
+
     const servicesKeys = Object.keys(contractData.contractedServices || {}).map((key) => key.toLowerCase());
     const services = await this.serviceService.indexByNames(servicesKeys);
 
