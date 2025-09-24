@@ -60,8 +60,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       pricing4ts:
-        specifier: ^0.10.0
-        version: 0.10.0(@openfeature/core@1.8.0)(minizinc@4.4.3)
+        specifier: ^0.10.3
+        version: 0.10.3(@openfeature/core@1.8.0)(minizinc@4.4.3)
       redis:
         specifier: ^4.7.0
         version: 4.7.1
@@ -1754,8 +1754,8 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  pricing4ts@0.10.0:
-    resolution: {integrity: sha512-r07+UNnr375/qr2qeq0NdoZ1aXO8Y+aNEfQnIe7JY8SAznvY43cXnnYh0Hq8TE5t+xCVbZYYhDl/B4lQljltJg==}
+  pricing4ts@0.10.3:
+    resolution: {integrity: sha512-RU9s3RvU7u3jByJsciihDZgF3XQCi2GWCyqMwU6wB+Hx/oRO5Wq+FidCYQadgExDMwD9KAkP/AXIPUCnolk95Q==}
     peerDependencies:
       minizinc: ^4.3.5
 
@@ -3874,7 +3874,7 @@ snapshots:
 
   prettier@3.5.3: {}
 
-  pricing4ts@0.10.0(@openfeature/core@1.8.0)(minizinc@4.4.3):
+  pricing4ts@0.10.3(@openfeature/core@1.8.0)(minizinc@4.4.3):
     dependencies:
       '@openfeature/server-sdk': 1.18.0(@openfeature/core@1.8.0)
       '@types/papaparse': 5.3.16
