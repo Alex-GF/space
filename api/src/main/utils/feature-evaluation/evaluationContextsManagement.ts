@@ -102,7 +102,7 @@ function mapSubscriptionsToConfigurationsByService(
       continue;
     }
 
-    const pricingContext: PricingContext = _getPlanContext(serviceName, pricing, plan);
+    const pricingContext: PricingContext = _getPricingContext(serviceName, pricing, plan);
 
     if (subscription.addOns) {
       _applyAddOnsToPricingContext(serviceName, pricingContext, addOns!, subscription.addOns);
@@ -183,7 +183,7 @@ function _applyAddOnsToPricingContext(
   }
 }
 
-function _getPlanContext(
+function _getPricingContext(
   serviceName: string,
   pricing: LeanPricing,
   plan: LeanPlan | undefined

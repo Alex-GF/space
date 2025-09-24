@@ -207,7 +207,7 @@ export function generateFeature(name?: string): TestFeature {
         ? faker.helpers.arrayElement(['BOT', 'FILTERING', 'TRACKING', 'TASK_AUTOMATION'])
         : undefined,
     docUrl: undefined,
-    expression: featureValueType === 'BOOLEAN' ? `planContext['${featureName}']` : undefined,
+    expression: featureValueType === 'BOOLEAN' ? `pricingContext['features']['${featureName}']` : undefined,
     serverExpression: undefined,
     render: faker.helpers.arrayElement(['auto', 'enabled', 'disabled']),
     tag: undefined,
@@ -389,7 +389,7 @@ function _generateExpressionsForFeatures(
         .map(([limitKey]) => limitKey);
 
       if (linkedUsageLimitKeys.length === 0) {
-        feature.expression = `pricingContext['${key}']`;
+        feature.expression = `pricingContext['features']['${key}']`;
         feature.serverExpression = undefined;
       } else {
         const createExpression = (operator: "<" | "<=") => {
@@ -406,7 +406,7 @@ function _generateExpressionsForFeatures(
     }
 
     if (feature.valueType === 'TEXT') {
-      feature.expression = `pricingContext['${key}'] === pricingContext['${key}']`;
+      feature.expression = `pricingContext['features']['${key}'] === pricingContext['features']['${key}']`;
       feature.serverExpression = undefined;
     }
   });
