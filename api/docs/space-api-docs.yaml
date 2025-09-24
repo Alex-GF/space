@@ -32,6 +32,9 @@ info:
   contact:
     email: agarcia29@us.es
   version: 1.0.0
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit
 externalDocs:
   description: Find out more about Pricing-driven Solutions
   url: https://sphere.score.us.es/
@@ -2243,7 +2246,7 @@ components:
                 extends it by 10, then evaluations will consider 20 as the value
                 of the usage limit'
               example: 1000
-          subscriptionContraint:
+          subscriptionConstraints:
             type: object
             description: >-
               Defines some restrictions that must be taken into consideration
@@ -2434,7 +2437,7 @@ components:
           description: >-
             Indicates how many times has the add-on been contracted within the
             subscription. This number must be within the range defined by the
-            `subscriptionContraint` of the add-on
+            `subscriptionConstraints` of the add-on
           example: 1
           minimum: 0
       example:
