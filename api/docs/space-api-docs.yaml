@@ -32,6 +32,9 @@ info:
   contact:
     email: agarcia29@us.es
   version: 1.0.0
+  license:
+    name: MIT License
+    url: https://opensource.org/license/mit
 externalDocs:
   description: Find out more about Pricing-driven Solutions
   url: https://sphere.score.us.es/
