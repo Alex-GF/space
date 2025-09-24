@@ -2243,7 +2243,7 @@ components:
                 extends it by 10, then evaluations will consider 20 as the value
                 of the usage limit'
               example: 1000
-          subscriptionContraint:
+          subscriptionConstraints:
             type: object
             description: >-
               Defines some restrictions that must be taken into consideration
@@ -2434,7 +2434,7 @@ components:
           description: >-
             Indicates how many times has the add-on been contracted within the
             subscription. This number must be within the range defined by the
-            `subscriptionContraint` of the add-on
+            `subscriptionConstraints` of the add-on
           example: 1
           minimum: 0
       example:
