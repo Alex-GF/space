@@ -391,13 +391,6 @@ class ServiceService {
         };
         updatePayload.archivedPricings = newArchived;
       } else {
-        // Step 3: Create the service as it does not exist and add the pricing
-        const savedPricing = await this.pricingRepository.create(pricingData);
-    
-        if (!savedPricing) {
-          throw new Error(`Pricing ${uploadedPricing.version} not saved`);
-        }
-        
         // Normal update: keep existing active pricings and just add the new one
         updatePayload[`activePricings.${formattedPricingVersion}`] = {
           id: savedPricing.id,
