@@ -103,7 +103,7 @@ export default function FileOrUrlInput({
           placeholder={placeholder}
           value={url}
           onChange={e => onUrlChange(e.target.value)}
-          className="w-full rounded px-3 py-2 border bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 text-sm text-indigo-700 dark:text-indigo-200"
+          className="w-full rounded px-3 py-2 border border-indigo-700 bg-white dark:bg-gray-900 dark:border-gray-700 text-sm text-indigo-700 dark:text-indigo-200 placeholder:text-gray-500 dark:placeholder:text-white"
         />
         {error && <div className="text-red-500 dark:text-red-400 text-sm mt-2">{error}</div>}
       </div>
