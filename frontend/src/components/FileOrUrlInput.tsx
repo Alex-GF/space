@@ -21,12 +21,22 @@ export default function FileOrUrlInput({
   error,
 }: FileOrUrlInputProps) {
   const [dragActive, setDragActive] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleFile = (selected: File | null) => {
-    if (selected && !new RegExp(`(${accept.replace(/\./g, '\\.')})$`, 'i').test(selected.name)) {
-      onFileChange(null);
-      return;
+    setLocalError(null);
+    if (selected) {
+      // accept may be a comma-separated list like '.yml,.yaml'.
+      // Build a proper alternation regex: (?:\.yml|\.yaml)$
+      const parts = accept.split(',').map(p => p.trim()).filter(Boolean);
+      const escaped = parts.map(p => p.replace(/\./g, '\\.'));
+      const pattern = `(?:${escaped.join('|')})$`;
+      if (!new RegExp(pattern, 'i').test(selected.name)) {
+        setLocalError(`Unsupported file type. Allowed: ${parts.join(', ')}`);
+        onFileChange(null);
+        return;
+      }
     }
     onFileChange(selected);
   };
@@ -40,9 +50,23 @@ export default function FileOrUrlInput({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
+    // Some browsers populate dataTransfer.items instead of files when dragging
+    // from certain sources—use items as fallback to get the File object.
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFile(e.dataTransfer.files[0]);
+      return;
     }
+
+    if (e.dataTransfer.items && e.dataTransfer.items[0]) {
+      const item = e.dataTransfer.items[0];
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        handleFile(file || null);
+        return;
+      }
+    }
+    // If nothing found, clear selection
+    handleFile(null);
   };
 
   const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
@@ -92,6 +116,7 @@ export default function FileOrUrlInput({
             <span className="text-indigo-700 dark:text-indigo-200 font-medium">Drag & drop your .yml or .yaml file here</span>
             <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">or click to select a file</span>
             {file && <span className="mt-2 text-indigo-600 dark:text-indigo-200 text-sm font-semibold">{file.name}</span>}
+            {localError && <div className="mt-2 text-red-500 text-sm">{localError}</div>}
           </div>
         </motion.div>
       </AnimatePresence>
