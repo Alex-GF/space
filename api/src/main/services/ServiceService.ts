@@ -222,6 +222,11 @@ class ServiceService {
     const formattedPricingVersion = escapeVersion(uploadedPricing.version);
     // Step 1.1: Load the service if already exists
     if (serviceName) {
+      if (uploadedPricing.saasName !== serviceName) {
+        throw new Error(
+          `Invalid request: The service name in the pricing file (${uploadedPricing.saasName}) does not match the service name in the URL (${serviceName})`
+        );
+      }
       service = await this.serviceRepository.findByName(serviceName);
       if (!service) {
         throw new Error(`Service ${serviceName} not found`);
@@ -502,6 +507,11 @@ class ServiceService {
       
       return service;
     } else {
+      if (uploadedPricing.saasName !== serviceName) {
+        throw new Error(
+          `Invalid request: The service name in the pricing file (${uploadedPricing.saasName}) does not match the service name in the URL (${serviceName})`
+        );
+      }
       // Update an existing service
       const service = await this.serviceRepository.findByName(serviceName);
       if (!service) {
