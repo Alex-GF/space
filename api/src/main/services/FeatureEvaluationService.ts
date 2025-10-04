@@ -90,40 +90,6 @@ class FeatureEvaluationService {
         result: SimpleFeatureEvaluation | DetailedFeatureEvaluation;
       }
   > {
-    const cachedResult = await this.cacheService.get(`features.${userId}.eval`);
-
-    if (cachedResult) {
-      if (options.details && typeof cachedResult[Object.keys(cachedResult)[0]] === 'object') {
-        if (options.returnContexts) {
-          const { subscriptionContext, pricingContext } = await this._retrieveContextsByUserId(
-            userId,
-            options.server
-          );
-          return {
-            pricingContext,
-            subscriptionContext,
-            result: cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation,
-          };
-        }
-        return cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation;
-      } else if (
-        !options.details &&
-        typeof cachedResult[Object.keys(cachedResult)[0]] !== 'object'
-      ) {
-        if (options.returnContexts) {
-          const { subscriptionContext, pricingContext } = await this._retrieveContextsByUserId(
-            userId,
-            options.server
-          );
-          return {
-            pricingContext,
-            subscriptionContext,
-            result: cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation,
-          };
-        }
-        return cachedResult as SimpleFeatureEvaluation | DetailedFeatureEvaluation;
-      }
-    }
 
     // Step 1: Retrieve contexts
     const { subscriptionContext, pricingContext, evaluationContext } =
@@ -192,9 +158,11 @@ class FeatureEvaluationService {
   ): Promise<boolean | FeatureEvaluationResult> {
     let evaluation = await this.cacheService.get(`features.${userId}.eval.${featureId}`);
 
-    if (evaluation && !options.revert) {
+    if (evaluation && !options.revert && !expectedConsumption) {
       return evaluation as FeatureEvaluationResult;
     }
+
+    await this.cacheService.del(`features.${userId}.pricingToken`)
 
     // Step 1: Retrieve contexts
     const { subscriptionContext, pricingContext, evaluationContext } =

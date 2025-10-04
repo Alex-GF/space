@@ -186,6 +186,9 @@ class ServiceService {
 
   async create(receivedPricing: any, pricingType: 'file' | 'url') {
     try {
+      
+      await this.cacheService.del("features.*");
+
       if (pricingType === 'file') {
         return await this._createFromFile(receivedPricing);
       } else {
@@ -202,7 +205,9 @@ class ServiceService {
     pricingType: 'file' | 'url'
   ) {
     try {
-      this.cacheService.del(`service.${serviceName}`);
+      await this.cacheService.del("features.*");
+      await this.cacheService.del(`service.${serviceName}`);
+      
       if (pricingType === 'file') {
         return await this._createFromFile(receivedPricing, serviceName);
       } else {
