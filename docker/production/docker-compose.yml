@@ -110,7 +110,7 @@ services:
     restart: always
     container_name: space-nginx
     build:
-        context: ./nginx
+        context: ../../nginx
         dockerfile: ./Dockerfile
     ports:
       - 80:80
