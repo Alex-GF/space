@@ -130,7 +130,7 @@ services:
     volumes:
       - '../../nginx/production/ssl:/etc/nginx/ssl'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5403${BASE_PATH:-}/api/v1/healthcheck"]
+      test: ["CMD", "curl", "-f", "https://space.score.us.es${BASE_PATH:-}/api/v1/healthcheck"]
       interval: 5s
       timeout: 5s
       retries: 3
