@@ -32,10 +32,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
-    restart: always
-    environment:
-      HTTP_PROXY: http://proxy.int.local:3128
-      HTTPS_PROXY: http://proxy.int.local:3128
     volumes:
       - 'redis_data:/data'
     networks:
@@ -55,11 +51,6 @@ services:
       MONGO_URI: ${MONGO_URI:-mongodb://${DATABASE_USERNAME:-mongoUser}:${DATABASE_PASSWORD:-mongoPassword}@mongodb:27017/${DATABASE_NAME:-space_db}}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       JWT_SECRET: ${JWT_SECRET:-test_secret}
-      JWT_SALT: ${JWT_SALT:-wgv~eb6v=VWwC9GIG1q6rZ]J.tUM(M}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-1h}
-
-      HTTP_PROXY: http://proxy.int.local:3128
-      HTTPS_PROXY: http://proxy.int.local:3128
     volumes:
       - 'space-statics:/usr/src/server/public'
     depends_on:
@@ -85,10 +76,6 @@ services:
       args:
         VITE_ENVIRONMENT: ${ENVIRONMENT:-production}
         VITE_BASE_PATH: ${BASE_PATH:-}
-        VITE_SPACE_BASE_URL: ${SPACE_HOST:-http://localhost:5403}${BASE_PATH:-}/api/v1
-    environment:
-      HTTP_PROXY: http://proxy.int.local:3128
-      HTTPS_PROXY: http://proxy.int.local:3128
     depends_on:
       space-server:
         condition: service_healthy
@@ -115,11 +102,6 @@ services:
     ports:
       - 80:80
       - 443:443
-    environment:
-      BASE_URL_PATH: ${BASE_PATH:-}
-      
-      HTTP_PROXY: http://proxy.int.local:3128
-      HTTPS_PROXY: http://proxy.int.local:3128
     depends_on:
       space-server:
         condition: service_healthy
