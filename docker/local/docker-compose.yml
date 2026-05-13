@@ -98,7 +98,7 @@ services:
     restart: always
     container_name: space-nginx
     build:
-        context: ../../nginx
+        context: ../../nginx/local/
         dockerfile: ./Dockerfile
     ports:
       - 5403:5403
