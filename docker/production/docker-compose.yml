@@ -81,7 +81,7 @@ services:
       - ./.env
     build:
       context: ../../frontend/
-      dockerfile: ./docker/Dockerfile
+      dockerfile: ./docker/production/Dockerfile
       args:
         VITE_ENVIRONMENT: ${ENVIRONMENT:-production}
         VITE_BASE_PATH: ${BASE_PATH:-}
@@ -111,7 +111,7 @@ services:
     container_name: space-nginx
     build:
         context: ../../nginx
-        dockerfile: ./Dockerfile
+        dockerfile: ./production/Dockerfile
     ports:
       - 80:80
       - 443:443
