@@ -8,7 +8,7 @@ ENV https_proxy http://proxy.int.local:3128
 WORKDIR /usr/src/client
 
 # Install pnpm globally
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9
 
 # Copy package.json and ./pnpm-lock.yaml to the container
 COPY ./package.json .
