@@ -44,7 +44,7 @@ services:
     restart: always
     container_name: space-server
     build:
-        context: ./api/
+        context: ../../api/
         dockerfile: ./docker/production/Dockerfile
     env_file:
       - ./.env
@@ -80,7 +80,7 @@ services:
     env_file:
       - ./.env
     build:
-      context: ./frontend/
+      context: ../../frontend/
       dockerfile: ./docker/Dockerfile
       args:
         VITE_ENVIRONMENT: ${ENVIRONMENT:-production}
