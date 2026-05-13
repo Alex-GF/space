@@ -25,7 +25,7 @@ SPACE is a modular platform for managing users, services, contracts, and pricing
    ```sh
    git clone https://github.com/Alex-GF/space.git
    cd space
-   docker-compose up -d
+   docker compose -f ./docker/local/docker-compose.yml up -d
    ```
 
    This will launch MongoDB, Redis, the backend API, the frontend client, and Nginx as a reverse proxy.

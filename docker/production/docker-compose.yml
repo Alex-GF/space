@@ -11,7 +11,7 @@ services:
         DATABASE_PASSWORD: ${DATABASE_PASSWORD:-mongoPassword}
       volumes:
         - 'space-mongodb:/data/db'
-        - './api/src/main/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh'
+        - '../../api/src/main/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh'
       networks:
         - space-network
       healthcheck:
@@ -29,7 +29,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
-    restart: always
     volumes:
       - 'redis_data:/data'
     networks:
@@ -38,8 +37,10 @@ services:
     restart: always
     container_name: space-server
     build:
-        context: ./api/
+        context: ../../api/
         dockerfile: ./docker/production/Dockerfile
+    env_file:
+      - ./.env
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-production}
       ADMIN_USER: ${ADMIN_USER:-admin}
@@ -47,8 +48,6 @@ services:
       MONGO_URI: ${MONGO_URI:-mongodb://${DATABASE_USERNAME:-mongoUser}:${DATABASE_PASSWORD:-mongoPassword}@mongodb:27017/${DATABASE_NAME:-space_db}}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       JWT_SECRET: ${JWT_SECRET:-test_secret}
-      JWT_SALT: ${JWT_SALT:-wgv~eb6v=VWwC9GIG1q6rZ]J.tUM(M}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-1h}
     volumes:
       - 'space-statics:/usr/src/server/public'
     depends_on:
@@ -66,9 +65,11 @@ services:
       start_period: 10s
   space-client:
     container_name: space-client
+    env_file:
+      - ./.env
     build:
-      context: ./frontend/
-      dockerfile: ./docker/Dockerfile
+      context: ../../frontend/
+      dockerfile: ./docker/production/Dockerfile
       args:
         VITE_ENVIRONMENT: ${ENVIRONMENT:-production}
         VITE_BASE_PATH: ${BASE_PATH:-}
@@ -94,12 +95,11 @@ services:
     restart: always
     container_name: space-nginx
     build:
-        context: ./nginx
+        context: ../../nginx/production/
         dockerfile: ./Dockerfile
     ports:
-      - 5403:5403
-    environment:
-      BASE_URL_PATH: ${BASE_PATH:-}
+      - 80:80
+      - 443:443
     depends_on:
       space-server:
         condition: service_healthy
@@ -107,8 +107,10 @@ services:
         condition: service_healthy
     networks:
       - space-network
+    volumes:
+      - '../../nginx/production/ssl:/etc/nginx/ssl'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5403${BASE_PATH:-}/api/v1/healthcheck"]
+      test: ["CMD", "curl", "-f", "https://space.score.us.es${BASE_PATH:-}/api/v1/healthcheck"]
       interval: 5s
       timeout: 5s
       retries: 3
