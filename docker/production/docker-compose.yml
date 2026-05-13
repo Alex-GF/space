@@ -1,0 +1,132 @@
+services:
+  mongodb:
+      image: mongo:7.0.16
+      container_name: space-mongodb
+      environment:
+        MONGO_INITDB_ROOT_USERNAME: ${DATABASE_ROOT_USERNAME:-root}
+        MONGO_INITDB_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:-4dm1n}
+        MONGO_INITDB_DATABASE: ${DATABASE_NAME:-space_db}
+        DATABASE_NAME: ${DATABASE_NAME:-space_db}
+        DATABASE_USERNAME: ${DATABASE_USERNAME:-mongoUser}
+        DATABASE_PASSWORD: ${DATABASE_PASSWORD:-mongoPassword}
+      volumes:
+        - 'space-mongodb:/data/db'
+        - './api/src/main/init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh'
+      networks:
+        - space-network
+      healthcheck:
+        test: [ "CMD", "mongosh", "--username", "${MONGO_INITDB_ROOT_USERNAME:-root}", "--password", "${MONGO_INITDB_ROOT_PASSWORD:-4dm1n}", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')" ]
+        interval: 5s
+        timeout: 5s
+        retries: 3
+        start_period: 5s
+  redis:
+    image: redis:7.4.2
+    container_name: space-redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: always
+    volumes:
+      - 'redis_data:/data'
+    networks:
+      - space-network
+  space-server:
+    restart: always
+    container_name: space-server
+    build:
+        context: ./api/
+        dockerfile: ./docker/production/Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      ADMIN_USER: ${ADMIN_USER:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-space4all}
+      MONGO_URI: ${MONGO_URI:-mongodb://${DATABASE_USERNAME:-mongoUser}:${DATABASE_PASSWORD:-mongoPassword}@mongodb:27017/${DATABASE_NAME:-space_db}}
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379}
+      JWT_SECRET: ${JWT_SECRET:-test_secret}
+      JWT_SALT: ${JWT_SALT:-wgv~eb6v=VWwC9GIG1q6rZ]J.tUM(M}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-1h}
+    volumes:
+      - 'space-statics:/usr/src/server/public'
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - space-network
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"const http=require('http'); const path=(process.env.BASE_URL_PATH ?? '') + '/api/v1'; http.get('http://localhost:3000'+path+'/healthcheck', r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1));\""]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+  space-client:
+    container_name: space-client
+    env_file:
+      - ./.env
+    build:
+      context: ./frontend/
+      dockerfile: ./docker/Dockerfile
+      args:
+        VITE_ENVIRONMENT: ${ENVIRONMENT:-production}
+        VITE_BASE_PATH: ${BASE_PATH:-}
+        VITE_SPACE_BASE_URL: ${SPACE_HOST:-http://localhost:5403}${BASE_PATH:-}/api/v1
+    depends_on:
+      space-server:
+        condition: service_healthy
+    networks:
+      - space-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:5050').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  nginx:
+    restart: always
+    container_name: space-nginx
+    build:
+        context: ./nginx
+        dockerfile: ./Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      BASE_URL_PATH: ${BASE_PATH:-}
+    depends_on:
+      space-server:
+        condition: service_healthy
+      space-client:
+        condition: service_healthy
+    networks:
+      - space-network
+    volumes:
+      - '../../nginx/production/ssl:/etc/nginx/ssl'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5403${BASE_PATH:-}/api/v1/healthcheck"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+volumes:
+  space-mongodb:
+    driver: local
+  space-statics:
+    driver: local
+  redis_data:
+    driver: local
+networks:
+  space-network:
+    driver: bridge
