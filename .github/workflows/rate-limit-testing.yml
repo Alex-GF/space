@@ -99,6 +99,6 @@ jobs:
 
       - name: Shutdown containers
         if: always()
-        working-directory: docker/production
+        working-directory: docker/local
         run: |
           docker compose down -v
