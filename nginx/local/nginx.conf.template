@@ -4,7 +4,7 @@
 
 # REST API rate limit
 # 15 requests/sec sustained per IP
-limit_req_zone $binary_remote_addr zone=space_api_limit:10m rate=15r/s;
+limit_req_zone $binary_remote_addr zone=space_api_limit:10m rate=20r/s;
 
 # WebSocket concurrent connections
 limit_conn_zone $binary_remote_addr zone=space_ws_limit:10m;
