@@ -37,7 +37,7 @@ jobs:
 
       - name: Create .env
         run: |
-          cat <<EOF > docker/local/.env
+          cat <<EOF > .env
           ENVIRONMENT=production
           BASE_PATH=
           SPACE_HOST=http://localhost:5403
