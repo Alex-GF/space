@@ -1,0 +1,104 @@
+name: Rate Limit Verification
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  rate-limit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # Node + pnpm
+      # --------------------------------------------------
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
+
+      - name: Install dependencies
+        run: |
+          pnpm install
+
+      # --------------------------------------------------
+      # ENV
+      # --------------------------------------------------
+
+      - name: Create .env
+        run: |
+          cat <<EOF > .env
+          ENVIRONMENT=production
+          BASE_PATH=
+          SPACE_HOST=http://localhost:5403
+          JWT_SECRET=test_secret
+          EOF
+
+      # --------------------------------------------------
+      # Docker
+      # --------------------------------------------------
+
+      - name: Build and start containers
+        working-directory: docker/local
+        run: |
+          docker compose up -d --build
+
+      # --------------------------------------------------
+      # Healthcheck
+      # --------------------------------------------------
+
+      - name: Wait for nginx healthcheck
+        run: |
+          timeout 120 bash -c '
+            until [ "$(docker inspect --format="{{json .State.Health.Status}}" space-nginx)" = "\"healthy\"" ];
+            do
+              echo "Waiting for nginx..."
+              sleep 5
+            done
+          '
+
+      # --------------------------------------------------
+      # Rate limit verification
+      # --------------------------------------------------
+
+      - name: Install tsx
+        run: |
+          pnpm add -D tsx
+      
+      - name: Run rate limit test
+        run: |
+          pnpm exec tsx scripts/test-rate-limit.ts
+
+      # --------------------------------------------------
+      # Logs on failure
+      # --------------------------------------------------
+
+      - name: Show nginx logs on failure
+        if: failure()
+        run: |
+          docker logs space-nginx
+
+      - name: Show backend logs on failure
+        if: failure()
+        run: |
+          docker logs space-server
+
+      # --------------------------------------------------
+      # Cleanup
+      # --------------------------------------------------
+
+      - name: Shutdown containers
+        if: always()
+        working-directory: docker/local
+        run: |
+          docker compose down -v
