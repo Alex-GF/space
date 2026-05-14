@@ -29,7 +29,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install
 
       # --------------------------------------------------
       # ENV
@@ -71,6 +71,10 @@ jobs:
       # Rate limit verification
       # --------------------------------------------------
 
+      - name: Install tsx
+        run: |
+          pnpm add -D tsx
+      
       - name: Run rate limit test
         run: |
           pnpm exec tsx scripts/test-rate-limit.ts
