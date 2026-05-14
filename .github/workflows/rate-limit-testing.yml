@@ -1,0 +1,116 @@
+name: Rate Limit Verification
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  rate-limit-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------
+      # Node + pnpm
+      # --------------------------------------------------
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 21
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile
+
+      # --------------------------------------------------
+      # SSL
+      # --------------------------------------------------
+
+      - name: Create SSL certificates directory
+        run: |
+          mkdir -p nginx/production/ssl
+
+      - name: Generate self-signed certificate
+        run: |
+          openssl req -x509 -nodes -days 1 \
+            -newkey rsa:2048 \
+            -keyout nginx/production/ssl/privkey.pem \
+            -out nginx/production/ssl/fullchain.pem \
+            -subj "/CN=localhost"
+
+      # --------------------------------------------------
+      # ENV
+      # --------------------------------------------------
+
+      - name: Create .env
+        run: |
+          cat <<EOF > docker/production/.env
+          ENVIRONMENT=production
+          BASE_PATH=
+          SPACE_HOST=https://localhost
+          JWT_SECRET=test_secret
+          EOF
+
+      # --------------------------------------------------
+      # Docker
+      # --------------------------------------------------
+
+      - name: Build and start containers
+        working-directory: docker/production
+        run: |
+          docker compose up -d --build
+
+      # --------------------------------------------------
+      # Healthcheck
+      # --------------------------------------------------
+
+      - name: Wait for nginx healthcheck
+        run: |
+          timeout 120 bash -c '
+            until [ "$(docker inspect --format="{{json .State.Health.Status}}" space-nginx)" = "\"healthy\"" ];
+            do
+              echo "Waiting for nginx..."
+              sleep 5
+            done
+          '
+
+      # --------------------------------------------------
+      # Rate limit verification
+      # --------------------------------------------------
+
+      - name: Run rate limit test
+        run: |
+          pnpm exec tsx scripts/test-rate-limit.ts
+
+      # --------------------------------------------------
+      # Logs on failure
+      # --------------------------------------------------
+
+      - name: Show nginx logs on failure
+        if: failure()
+        run: |
+          docker logs space-nginx
+
+      - name: Show backend logs on failure
+        if: failure()
+        run: |
+          docker logs space-server
+
+      # --------------------------------------------------
+      # Cleanup
+      # --------------------------------------------------
+
+      - name: Shutdown containers
+        if: always()
+        working-directory: docker/production
+        run: |
+          docker compose down -v
