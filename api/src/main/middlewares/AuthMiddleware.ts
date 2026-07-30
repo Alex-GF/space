@@ -19,6 +19,18 @@ import { HttpMethod, OrganizationApiKeyRole } from '../types/permissions';
  * Sets req.user for User API Keys
  * Sets req.org for Organization API Keys
  */
+/**
+ * A credential that was read and found wanting.
+ *
+ * Distinguished from every other failure on purpose. Authentication reads the
+ * database, so anything that can go wrong with the database - a dropped
+ * connection, a replica-set election, a Mongo that is simply not running -
+ * surfaces as an exception here too. Answering 401 to those says the caller
+ * sent a bad key, which is untrue and sends whoever is debugging to look at
+ * their credentials.
+ */
+class InvalidApiKeyError extends Error {}
+
 const authenticateApiKeyMiddleware = async (req: Request, res: Response, next: NextFunction) => {
   const apiKey = req.headers['x-api-key'] as string;
 
@@ -40,11 +52,25 @@ const authenticateApiKeyMiddleware = async (req: Request, res: Response, next: N
 
     return checkPermissions(req, res, next);
   } catch (err: any) {
-    if (!res.headersSent) {
+    if (res.headersSent) {
+      return;
+    }
+
+    if (err instanceof InvalidApiKeyError) {
       return res.status(401).json({
         error: err.message || 'Invalid API Key',
       });
     }
+
+    // Anything else got as far as trying and could not finish - almost always
+    // the database. 503 rather than 401, because the credential was never
+    // judged, and Retry-After because it is worth trying again.
+    console.error('Authentication could not be completed:', err);
+    res.setHeader('Retry-After', '5');
+    return res.status(503).json({
+      error: 'Space cannot verify credentials right now.',
+      details: err?.message ?? String(err),
+    });
   }
 };
 
@@ -57,7 +83,7 @@ async function authenticateUserApiKey(req: Request, apiKey: string): Promise<voi
   const user = await userService.findByApiKey(apiKey);
 
   if (!user) {
-    throw new Error('Invalid User API Key');
+    throw new InvalidApiKeyError('Invalid User API Key');
   }
 
   req.user = user;
@@ -74,7 +100,7 @@ async function authenticateOrgApiKey(req: Request, apiKey: string): Promise<void
   const result: LeanOrganization = await organizationRepository.findByApiKey(apiKey);
 
   if (!result) {
-    throw new Error('Invalid Organization API Key');
+    throw new InvalidApiKeyError('Invalid Organization API Key');
   }
 
   req.org = {
