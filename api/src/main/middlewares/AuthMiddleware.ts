@@ -8,6 +8,7 @@ import {
 import { matchPath, extractApiPath } from '../utils/routeMatcher';
 import { LeanOrganization, OrganizationMember, OrganizationUserRole } from '../types/models/Organization';
 import { HttpMethod, OrganizationApiKeyRole } from '../types/permissions';
+import { LeanUser } from '../types/models/User';
 
 /**
  * Middleware to authenticate API Keys (both User and Organization types)
@@ -80,14 +81,41 @@ const authenticateApiKeyMiddleware = async (req: Request, res: Response, next: N
 async function authenticateUserApiKey(req: Request, apiKey: string): Promise<void> {
   const userService = container.resolve('userService');
 
-  const user = await userService.findByApiKey(apiKey);
-
-  if (!user) {
-    throw new InvalidApiKeyError('Invalid User API Key');
-  }
+  const user = await rejectionOrOutage<LeanUser>(
+    () => userService.findByApiKey(apiKey),
+    'Invalid User API Key'
+  );
 
   req.user = user;
   req.authType = 'user';
+}
+
+/**
+ * Run a credential lookup, telling a refusal apart from a failure.
+ *
+ * `UserService.findByApiKey` reports an unknown key by throwing rather than by
+ * returning nothing, using the `INVALID DATA:` prefix this codebase gives to a
+ * caller's own mistake. That has to keep answering 401. Anything else thrown by
+ * a lookup is the database being unable to answer, which is the case this
+ * middleware exists to stop reporting as a bad credential.
+ */
+async function rejectionOrOutage<T>(lookup: () => Promise<T>, absent: string): Promise<T> {
+  let found: T;
+
+  try {
+    found = await lookup();
+  } catch (err: any) {
+    if (typeof err?.message === 'string' && err.message.startsWith('INVALID DATA:')) {
+      throw new InvalidApiKeyError(err.message);
+    }
+    throw err;
+  }
+
+  if (!found) {
+    throw new InvalidApiKeyError(absent);
+  }
+
+  return found;
 }
 
 /**
@@ -97,11 +125,10 @@ async function authenticateOrgApiKey(req: Request, apiKey: string): Promise<void
   const organizationRepository = container.resolve('organizationRepository');
 
   // Find organization by API Key
-  const result: LeanOrganization = await organizationRepository.findByApiKey(apiKey);
-
-  if (!result) {
-    throw new InvalidApiKeyError('Invalid Organization API Key');
-  }
+  const result: LeanOrganization = await rejectionOrOutage(
+    () => organizationRepository.findByApiKey(apiKey),
+    'Invalid Organization API Key'
+  );
 
   req.org = {
     id: result.id!,
