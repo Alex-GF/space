@@ -185,6 +185,46 @@ class ContractRepository extends RepositoryBase {
     return contract ? toPlainObject<LeanContract>(contract.toJSON()) : null;
   }
 
+  /**
+   * Add to several usage levels of one contract in a single atomic update.
+   *
+   * `$inc` is evaluated by the database against the stored document rather than
+   * against a copy the process read earlier, so concurrent increments compose
+   * instead of overwriting one another. Read-modify-write cannot do this from
+   * the application: two callers who read the same value both write the same
+   * total, and one consumption disappears.
+   *
+   * Every path is required to exist by the filter, so a limit that is not part
+   * of the contract matches no document and is reported to the caller instead
+   * of being created by the update - `$inc` would otherwise happily add the
+   * field. That check and the increment are one operation, so a limit cannot be
+   * validated and then vanish before the write.
+   *
+   * @param increments usage level path (`service.limit`) to amount to add.
+   * @returns the contract as it is after the increment, or null when the filter
+   *          matched nothing.
+   */
+  async incrementUsageLevels(
+    userId: string,
+    increments: Record<string, number>
+  ): Promise<LeanContract | null> {
+    const filter: Record<string, unknown> = { 'userContact.userId': userId };
+    const inc: Record<string, number> = {};
+
+    for (const [path, amount] of Object.entries(increments)) {
+      filter[`usageLevels.${path}.consumed`] = { $exists: true };
+      inc[`usageLevels.${path}.consumed`] = amount;
+    }
+
+    const contract = await ContractMongoose.findOneAndUpdate(
+      filter,
+      { $inc: inc },
+      { new: true }
+    );
+
+    return contract ? toPlainObject<LeanContract>(contract.toJSON()) : null;
+  }
+
   async changeServiceName(oldServiceName: string, newServiceName: string, organizationId: string): Promise<number> {
     const oldServiceKey = oldServiceName.toLowerCase();
     const newServiceKey = newServiceName.toLowerCase();
