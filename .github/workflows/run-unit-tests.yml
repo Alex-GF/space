@@ -4,6 +4,17 @@ on:
     branches:
       - 'develop'
       - 'main'
+
+# A pull request opened from a fork does not receive the `testing` environment's
+# secrets or variables, so every `vars.*` and `secrets.*` below resolves to an
+# empty string on those runs. The `|| '...'` fallbacks keep the job
+# self-sufficient; where the environment is available, its values still win.
+#
+# The fallbacks are not arbitrary. MONGO_URI is hard-coded, so the container the
+# suite talks to has to listen on 27017 and hold `space_testing_db` for the
+# tests to connect at all - the two variables cannot hold anything else without
+# breaking the run. JWT_SECRET and JWT_SALT are only a key and a pbkdf2 salt for
+# tokens minted and verified inside the same run, so any non-empty pair works.
 jobs:
   build:
     name: Test
@@ -22,14 +33,14 @@ jobs:
         uses: SpicyPizza/create-envfile@v2.0
         with:
           envkey_ENVIRONMENT: "testing"
-          envkey_DATABASE_NAME: ${{ vars.CI_MONGO_INITDB_DATABASE }}
+          envkey_DATABASE_NAME: ${{ vars.CI_MONGO_INITDB_DATABASE || 'space_testing_db' }}
           envkey_MONGO_URI: mongodb://localhost:27017/space_testing_db?authSource=space_testing_db
           envkey_ADMIN_USER: "admin"
           envkey_ADMIN_PASSWORD: "4dm1n"
           envkey_REDIS_URL: "redis://localhost:6379"
-          envkey_JWT_SECRET: ${{ secrets.CI_JWT_SECRET }}
+          envkey_JWT_SECRET: ${{ secrets.CI_JWT_SECRET || 'ci_test_secret' }}
           envkey_JWT_EXPIRATION: "1h"
-          envkey_JWT_SALT: ${{ secrets.CI_JWT_SALT }}
+          envkey_JWT_SALT: ${{ secrets.CI_JWT_SALT || 'ci_test_salt' }}
           
           directory: .
           file_name: api/.env
@@ -40,8 +51,8 @@ jobs:
         uses: supercharge/mongodb-github-action@1.10.0
         with:
           mongodb-version: '7.0.16'
-          mongodb-db: ${{ vars.CI_MONGO_INITDB_DATABASE }}
-          mongodb-port: ${{ vars.CI_MONGO_PORT }}
+          mongodb-db: ${{ vars.CI_MONGO_INITDB_DATABASE || 'space_testing_db' }}
+          mongodb-port: ${{ vars.CI_MONGO_PORT || '27017' }}
 
       - name: Start Redis
         uses: shogo82148/actions-setup-redis@v1
