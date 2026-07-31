@@ -63,8 +63,8 @@ importers:
         specifier: ^3.3.2
         version: 3.3.2
       pricing4ts:
-        specifier: ^0.10.3
-        version: 0.10.3(@openfeature/core@1.8.0)(minizinc@4.4.3)
+        specifier: ^0.11.1
+        version: 0.11.1(@openfeature/core@1.8.0)(minizinc@4.4.3)
       redis:
         specifier: ^4.7.0
         version: 4.7.1
@@ -1783,8 +1783,8 @@ packages:
     engines: {node: '>=14'}
     hasBin: true
 
-  pricing4ts@0.10.3:
-    resolution: {integrity: sha512-RU9s3RvU7u3jByJsciihDZgF3XQCi2GWCyqMwU6wB+Hx/oRO5Wq+FidCYQadgExDMwD9KAkP/AXIPUCnolk95Q==}
+  pricing4ts@0.11.1:
+    resolution: {integrity: sha512-Q2lTrkhvgAGyefr9dh1qN7XL3hQ+NdU5OGHjD00yHMB2YOnbfV3gMfpc5hkaxjd93R1OGUqnfExQlHxesAq0wg==}
     peerDependencies:
       minizinc: ^4.3.5
 
@@ -2124,6 +2124,7 @@ packages:
 
   uuid@10.0.0:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   uuid@11.1.0:
@@ -3940,7 +3941,7 @@ snapshots:
 
   prettier@3.5.3: {}
 
-  pricing4ts@0.10.3(@openfeature/core@1.8.0)(minizinc@4.4.3):
+  pricing4ts@0.11.1(@openfeature/core@1.8.0)(minizinc@4.4.3):
     dependencies:
       '@openfeature/server-sdk': 1.18.0(@openfeature/core@1.8.0)
       '@types/papaparse': 5.3.16

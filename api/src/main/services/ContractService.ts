@@ -459,38 +459,95 @@ class ContractService {
     usageLimitId: string,
     expectedConsumption: number
   ): Promise<void> {
-    let contract = await this.cacheService.get(`contracts.${userId}`);
+    await this._applyExpectedConsumptions(userId, { [usageLimitId]: expectedConsumption });
+  }
 
-    if (!contract) {
-      contract = await this.contractRepository.findByUserId(userId);
+  /**
+   * Apply several expected consumptions to a contract in one atomic update.
+   *
+   * Read-modify-write loses consumptions, and it does so in two ways. Applying
+   * the limits of one evaluation in turn made each application read the whole
+   * contract, change a single usage level in its own copy and write the whole
+   * contract back, so an evaluation touching two limits recorded one of them.
+   * Batching the limits into a single read and write fixes that, but not the
+   * case of two requests arriving together: both read the same consumed value,
+   * both write the same total, and one consumption is gone.
+   *
+   * The database is the only place that can settle this, so the increment is
+   * handed to it as `$inc` and evaluated against the stored document. Whatever
+   * order concurrent calls arrive in, every one of them is added.
+   */
+  async _applyExpectedConsumptions(
+    userId: string,
+    expectedConsumptions: Record<string, number>
+  ): Promise<void> {
+    const usageLimitIds = Object.keys(expectedConsumptions);
+    if (usageLimitIds.length === 0) {
+      return;
     }
+
+    const targets = usageLimitIds.map(usageLimitId => {
+      const serviceName: string = usageLimitId.split('-')[0];
+      const usageLimit: string = usageLimitId.split('-')[1];
+
+      return { serviceName, usageLimit, amount: expectedConsumptions[usageLimitId] };
+    });
+
+    const increments: Record<string, number> = {};
+    for (const { serviceName, usageLimit, amount } of targets) {
+      increments[`${serviceName}.${usageLimit}`] = amount;
+    }
+
+    const updatedContract = await this.contractRepository.incrementUsageLevels(userId, increments);
+
+    if (!updatedContract) {
+      // The update requires the contract and every named usage level to exist,
+      // so it matched nothing. Which of the two is missing only matters for the
+      // message, and is worth a read to get right.
+      await this._explainMissingUsageLevels(userId, targets);
+    }
+
+    const appliedAt = new Date().getTime();
+
+    for (const { serviceName, usageLimit, amount } of targets) {
+      // What the level held before this call, for `_revertExpectedConsumption`.
+      // Derived from the result rather than from a prior read, so it is this
+      // caller's own contribution that gets taken back even if others landed in
+      // between.
+      await this.cacheService.set(
+        `${appliedAt}.usageLevels.${userId}.${serviceName}.${usageLimit}`,
+        updatedContract!.usageLevels[serviceName][usageLimit].consumed - amount,
+        120
+      ); // 120 secs = 2 mins
+    }
+
+    await this.cacheService.set(`contracts.${userId}`, updatedContract, 3600, true); // Cache for 1 hour
+  }
+
+  /**
+   * Say which part of the contract was missing, having established that one was.
+   */
+  private async _explainMissingUsageLevels(
+    userId: string,
+    targets: { serviceName: string; usageLimit: string }[]
+  ): Promise<never> {
+    const contract = await this.contractRepository.findByUserId(userId);
 
     if (!contract) {
       throw new Error(`Contract with userId ${userId} not found`);
     }
 
-    const serviceName: string = usageLimitId.split('-')[0];
-    const usageLimit: string = usageLimitId.split('-')[1];
+    const missing = targets.find(
+      ({ serviceName, usageLimit }) => !contract.usageLevels[serviceName]?.[usageLimit]
+    );
 
-    if (contract.usageLevels[serviceName][usageLimit]) {
-      await this.cacheService.set(
-        `${new Date().getTime()}.usageLevels.${userId}.${serviceName}.${usageLimit}`,
-        contract.usageLevels[serviceName][usageLimit].consumed,
-        120
-      ); // 120 secs = 2 mins
-
-      contract.usageLevels[serviceName][usageLimit].consumed += expectedConsumption;
-
-      const updatedContract = await this.contractRepository.update(userId, contract);
-
-      if (!updatedContract) {
-        throw new Error(`Failed to update contract for userId ${userId}`);
-      }
-
-      await this.cacheService.set(`contracts.${userId}`, updatedContract, 3600, true); // Cache for 1 hour
-    } else {
-      throw new Error(`Usage level ${usageLimit} not found in contract for userId ${userId}`);
+    if (missing) {
+      throw new Error(
+        `Usage level ${missing.usageLimit} not found in contract for userId ${userId}`
+      );
     }
+
+    throw new Error(`Failed to update contract for userId ${userId}`);
   }
 
   async _revertExpectedConsumption(

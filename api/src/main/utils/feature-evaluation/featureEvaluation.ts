@@ -61,20 +61,21 @@ async function evaluateFeature(
         }
       }
 
-      // Then apply all consumptions after validation has passed
+      // Then apply all consumptions after validation has passed.
+      //
+      // In one call rather than one per limit: each application reads the whole
+      // contract, increments one usage level and writes the whole contract
+      // back, so running them concurrently made every one of them start from
+      // the same state and only the last write survive.
       if (options.userId) {
         const contractService: ContractService = container.resolve('contractService');
 
-        const limits = Object.keys(featureEvaluation.used);
-        await Promise.all(
-          limits.map(limit =>
-            contractService._applyExpectedConsumption(
-              options.userId!,
-              limit,
-              expectedConsumption[limit]
-            )
-          )
-        );
+        const consumptions: Record<string, number> = {};
+        for (const limit of Object.keys(featureEvaluation.used)) {
+          consumptions[limit] = expectedConsumption[limit];
+        }
+
+        await contractService._applyExpectedConsumptions(options.userId, consumptions);
       }
     }
   }
@@ -226,7 +227,7 @@ function _buildSuccessResult(
         subscriptionContext[limitKey],
         expectedConsumption[limitKey]
       );
-      if (!updatedUsageLevel) {
+      if (updatedUsageLevel === undefined) {
         return _createErrorResult(
           'INVALID_EXPECTED_CONSUMPTION',
           `No expectedConsumption value was provided for limit '${limitKey}', which is used in the evaluation of feature '${featureId}'. Please note that if you provide an expectedConsumption for any limit, you must provide it for all limits involved in that feature's evaluation.`
@@ -250,7 +251,10 @@ function _updateUsageLevel(
   currentUsageLevel: number,
   expectedConsumption?: number
 ): number | undefined {
-  if (!expectedConsumption) {
+  // `undefined` means the caller did not mention this limit, which is the
+  // error the caller is told about. `0` means they mentioned it and it costs
+  // nothing - a different statement, and one a falsy check cannot tell apart.
+  if (expectedConsumption === undefined || expectedConsumption === null) {
     return undefined;
   }
 

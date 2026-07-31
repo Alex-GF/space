@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+title: "SPACE"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: García-Fernández
+    given-names: Alejandro
+    email: agarcia29@us.es
+    orcid: https://orcid.org/0009-0005-0778-1432
+  - family-names: Parejo
+    given-names: José Antonio
+    email: japarejo@us.es
+    orcid: https://orcid.org/0000-0002-4708-4606
+  - family-names: Ruiz-Cortés
+    given-names: Antonio
+    email: aruiz@us.es
+    orcid: https://orcid.org/0000-0001-9827-1834
+repository-code: "https://github.com/isa-group/space"
+license: MIT
+version: 1.5.0
+date-released: "2026-07-31"
+keywords:
+  - pricing-driven self-adaptation
+  - self-adaptive systems
+  - cloud computing
+  - software pricing
+  - service-oriented architecture
